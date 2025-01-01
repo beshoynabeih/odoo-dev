@@ -16,11 +16,14 @@ import sys
 import threading
 import time
 import unittest
+from io import BytesIO
 from itertools import chain
 
 import psutil
 import werkzeug.serving
 from werkzeug.debug import DebuggedApplication
+
+from ..tests import loader
 
 if os.name == 'posix':
     # Unix only for workers
@@ -58,7 +61,6 @@ from odoo.modules.registry import Registry
 from odoo.release import nt_service_name
 from odoo.tools import config
 from odoo.tools import stripped_sys_argv, dumpstacks, log_ormcache_stats
-from ..tests import loader, runner
 
 _logger = logging.getLogger(__name__)
 
@@ -147,6 +149,16 @@ class RequestHandler(werkzeug.serving.WSGIRequestHandler):
             return
         super().send_header(keyword, value)
 
+    def end_headers(self, *a, **kw):
+        super().end_headers(*a, **kw)
+        # At this point, Werkzeug assumes the connection is closed and will discard any incoming
+        # data. In the case of WebSocket connections, data should not be discarded. Replace the
+        # rfile/wfile of this handler to prevent any further action (compatibility with werkzeug >= 2.3.x).
+        # See: https://github.com/pallets/werkzeug/blob/2.3.x/src/werkzeug/serving.py#L334
+        if self.headers.get('Upgrade') == 'websocket':
+            self.rfile = BytesIO()
+            self.wfile = BytesIO()
+
 class ThreadedWSGIServerReloadable(LoggingBaseWSGIServerMixIn, werkzeug.serving.ThreadedWSGIServer):
     """ werkzeug Threaded WSGI Server patched to allow reusing a listen socket
     given by the environment, this is used by autoreload to keep the listen
@@ -164,7 +176,7 @@ class ThreadedWSGIServerReloadable(LoggingBaseWSGIServerMixIn, werkzeug.serving.
                 # If the value can't be parsed to an integer then it's computed in an automated way to
                 # half the size of db_maxconn because while most requests won't borrow cursors concurrently
                 # there are some exceptions where some controllers might allocate two or more cursors.
-                self.max_http_threads = config['db_maxconn'] // 2
+                self.max_http_threads = max((config['db_maxconn'] - config['max_cron_threads']) // 2, 1)
             self.http_threads_sem = threading.Semaphore(self.max_http_threads)
         super(ThreadedWSGIServerReloadable, self).__init__(host, port, app,
                                                            handler=RequestHandler)
@@ -263,7 +275,7 @@ class FSWatcherWatchdog(FSWatcherBase):
     def dispatch(self, event):
         if isinstance(event, (FileCreatedEvent, FileModifiedEvent, FileMovedEvent)):
             if not event.is_directory:
-                path = getattr(event, 'dest_path', event.src_path)
+                path = getattr(event, 'dest_path', '') or event.src_path
                 self.handle_file(path)
 
     def start(self):
@@ -361,7 +373,7 @@ class CommonServer(object):
         cls._on_stop_funcs.append(func)
 
     def stop(self):
-        for func in type(self)._on_stop_funcs:
+        for func in self._on_stop_funcs:
             try:
                 _logger.debug("on_close call %s", func)
                 func()
@@ -579,7 +591,7 @@ class ThreadedServer(CommonServer):
 
         if stop:
             if config['test_enable']:
-                logger = odoo.tests.runner._logger
+                logger = odoo.tests.result._logger
                 with Registry.registries._lock:
                     for db, registry in Registry.registries.d.items():
                         report = registry._assertion_report
@@ -1267,7 +1279,8 @@ def _reexec(updated_modules=None):
     os.execve(sys.executable, args, os.environ)
 
 def load_test_file_py(registry, test_file):
-    from odoo.tests.common import OdooSuite
+    # pylint: disable=import-outside-toplevel
+    from odoo.tests.suite import OdooSuite
     threading.current_thread().testing = True
     try:
         test_path, _ = os.path.splitext(os.path.abspath(test_file))
@@ -1294,6 +1307,7 @@ def preload_registries(dbnames):
     for dbname in dbnames:
         try:
             update_module = config['init'] or config['update']
+            threading.current_thread().dbname = dbname
             registry = Registry.new(dbname, update_module=update_module)
 
             # run test_file if provided
@@ -1393,8 +1407,6 @@ def start(preload=None, stop=False):
             else:
                 module = 'watchdog'
             _logger.warning("'%s' module not installed. Code autoreload feature is disabled", module)
-    if 'werkzeug' in config['dev_mode']:
-        server.app = DebuggedApplication(server.app, evalex=True)
 
     rc = server.run(preload, stop)
 

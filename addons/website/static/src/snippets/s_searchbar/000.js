@@ -11,7 +11,7 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
     events: {
         'input .search-query': '_onInput',
         'focusout': '_onFocusOut',
-        'keydown .search-query': '_onKeydown',
+        'keydown .search-query, .dropdown-item': '_onKeydown',
         'search .search-query': '_onSearch',
     },
     autocompleteMinWidth: 300,
@@ -64,15 +64,16 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
             for (const keyValue of urlParams.split('&')) {
                 const [key, value] = keyValue.split('=');
                 if (value && key !== 'search') {
-                    this.options[key] = value;
+                    // Decode URI parameters: revert + to space then decodeURIComponent.
+                    this.options[decodeURIComponent(key.replace(/\+/g, '%20'))] = decodeURIComponent(value.replace(/\+/g, '%20'));
                 }
             }
         }
         const pathParts = urlPath.split('/');
         for (const index in pathParts) {
-            const value = pathParts[index];
+            const value = decodeURIComponent(pathParts[index]);
             if (index > 0 && /-[0-9]+$/.test(value)) { // is sluggish
-                this.options[pathParts[index - 1]] = value;
+                this.options[decodeURIComponent(pathParts[index - 1])] = value;
             }
         }
 
@@ -147,6 +148,7 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
             delete this._menuScrollAndResizeHandler;
         }
 
+        let pageScrollHeight = null;
         const $prevMenu = this.$menu;
         if (res && this.limit) {
             const results = res['results'];
@@ -185,6 +187,7 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
                 }
             }
 
+            pageScrollHeight = document.querySelector("#wrapwrap").scrollHeight;
             this.$el.append(this.$menu);
 
             this.$el.find('button.extra_link').on('click', function (event) {
@@ -202,6 +205,24 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
         this.$el.toggleClass('dropdown show', !!res);
         if ($prevMenu) {
             $prevMenu.remove();
+        }
+        // Adjust the menu's position based on the scroll height.
+        if (res && this.limit) {
+            this.el.classList.remove("dropup");
+            delete this.$menu[0].dataset.bsPopper;
+            const wrapwrapEl = document.querySelector("#wrapwrap");
+            if (wrapwrapEl.scrollHeight > pageScrollHeight) {
+                // If the menu overflows below the page, we reduce its height.
+                this.$menu[0].style.maxHeight = "40vh";
+                this.$menu[0].style.overflowY = "auto";
+                // We then recheck if the menu still overflows below the page.
+                if (wrapwrapEl.scrollHeight > pageScrollHeight) {
+                    // If the menu still overflows below the page after its height
+                    // has been reduced, we position it above the input.
+                    this.el.classList.add("dropup");
+                    this.$menu[0].dataset.bsPopper = "";
+                }
+            }
         }
     },
 
@@ -234,36 +255,25 @@ publicWidget.registry.searchBar = publicWidget.Widget.extend({
      * @private
      */
     _onKeydown: function (ev) {
-        const focusedEl = this.$menu && this.$menu[0].querySelector('.o_focus');
         switch (ev.which) {
             case $.ui.keyCode.ESCAPE:
                 this._render();
                 break;
             case $.ui.keyCode.UP:
             case $.ui.keyCode.DOWN:
+                ev.preventDefault();
                 if (this.$menu) {
-                    const suggestionEls = [null, ...this.$menu[0].querySelectorAll('.dropdown-item')];
-                    const currentIndex = suggestionEls.indexOf(focusedEl);
-                    const delta = ev.which === $.ui.keyCode.UP ? suggestionEls.length - 1 : 1;
-                    const nextIndex = (currentIndex + delta) % suggestionEls.length;
-                    const nextFocusedEl = suggestionEls[nextIndex];
-                    if (focusedEl) {
-                        focusedEl.classList.remove('o_focus');
-                    }
-                    if (nextFocusedEl) {
-                        nextFocusedEl.classList.add('o_focus');
-                        nextFocusedEl.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-                    } else {
-                        this.$input[0].scrollIntoView({behavior: 'smooth', block: 'nearest'});
-                    }
+                    const focusableEls = [this.$input[0], ...this.$menu[0].children];
+                    const focusedEl = document.activeElement;
+                    const currentIndex = focusableEls.indexOf(focusedEl) || 0;
+                    const delta = ev.which === $.ui.keyCode.UP ? focusableEls.length - 1 : 1;
+                    const nextIndex = (currentIndex + delta) % focusableEls.length;
+                    const nextFocusedEl = focusableEls[nextIndex];
+                    nextFocusedEl.focus();
                 }
                 break;
             case $.ui.keyCode.ENTER:
                 this.limit = 0; // prevent autocomplete
-                if (focusedEl) {
-                    focusedEl.click();
-                    ev.preventDefault();
-                }
                 break;
         }
     },

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, models, fields, _, _lt
+from odoo import Command, api, models, fields, _, _lt
 from odoo.exceptions import UserError
 from odoo.addons.account_edi_proxy_client.models.account_edi_proxy_user import AccountEdiProxyError
 from odoo.addons.l10n_it_edi.tools.remove_signature import remove_signature
@@ -147,9 +147,11 @@ class AccountEdiFormat(models.Model):
             Can be overridden by submodules like l10n_it_edi_withholding, which also allows for withholding and pension_fund taxes.
         """
         errors = []
-        for invoice_line in invoice.invoice_line_ids.filtered(lambda x: not x.display_type):
-            if len(invoice_line.tax_ids) != 1:
-                errors.append(_("In line %s, you must select one and only one tax.", invoice_line.name))
+        for invoice_line in invoice.invoice_line_ids.filtered(lambda x: x.display_type == 'product'):
+            all_taxes = invoice_line.tax_ids.flatten_taxes_hierarchy()
+            vat_taxes = all_taxes.filtered(lambda t: t.amount_type == 'percent' and t.amount >= 0)
+            if len(vat_taxes) != 1:
+                errors.append(_("In line %s, you must select one and only one VAT tax.", invoice_line.name))
         return errors
 
     def _l10n_it_edi_is_simplified(self, invoice):
@@ -249,6 +251,25 @@ class AccountEdiFormat(models.Model):
             'TD19': dict(move_types=['in_invoice', 'in_refund'], import_type='in_invoice', simplified=False, self_invoice=True, services_or_goods="consu", goods_in_italy=True),
         }
 
+    @api.model
+    def _l10n_it_buyer_seller_info(self):
+        return {
+            'buyer': {
+                'role': 'buyer',
+                'section_xpath': './/CessionarioCommittente',
+                'vat_xpath': '//CessionarioCommittente//IdCodice',
+                'codice_fiscale_xpath': '//CessionarioCommittente//CodiceFiscale',
+                'type_tax_use_domain': [('type_tax_use', '=', 'purchase')],
+            },
+            'seller': {
+                'role': 'seller',
+                'section_xpath': './/CedentePrestatore',
+                'vat_xpath': '//CedentePrestatore//IdCodice',
+                'codice_fiscale_xpath': '//CedentePrestatore//CodiceFiscale',
+                'type_tax_use_domain': [('type_tax_use', '=', 'sale')],
+            },
+        }
+
     def _l10n_it_get_invoice_features_for_document_type_selection(self, invoice):
         """ Returns a dictionary of features to be compared with the TDxx FatturaPA
             document type requirements. """
@@ -290,66 +311,100 @@ class AccountEdiFormat(models.Model):
     # -------------------------------------------------------------------------
 
     def _cron_receive_fattura_pa(self):
-        ''' Check the proxy for incoming invoices.
+        ''' Check the proxy for incoming invoices for all companies.
         '''
-        proxy_users = self.env['account_edi_proxy_client.user'].search([('edi_format_id', '=', self.env.ref('l10n_it_edi.edi_fatturaPA').id)])
-
-        if proxy_users._get_demo_state() == 'demo':
+        if self.env['account_edi_proxy_client.user']._get_demo_state() == 'demo':
             return
 
-        for proxy_user in proxy_users:
-            company = proxy_user.company_id
-            try:
-                res = proxy_user._make_request(proxy_user._get_server_url() + '/api/l10n_it_edi/1/in/RicezioneInvoice',
-                                               params={'recipient_codice_fiscale': company.l10n_it_codice_fiscale})
-            except AccountEdiProxyError as e:
-                res = {}
-                _logger.error('Error while receiving file from SdiCoop: %s', e)
+        fattura_pa = self.env.ref('l10n_it_edi.edi_fatturaPA')
+        for proxy_user in self.env['account_edi_proxy_client.user'].search([('edi_format_code', '=', 'fattura_pa')]):
+            fattura_pa._receive_fattura_pa(proxy_user)
 
-            proxy_acks = []
-            for id_transaction, fattura in res.items():
-                if self.env['ir.attachment'].search([('name', '=', fattura['filename']), ('res_model', '=', 'account.move')], limit=1):
-                    # name should be unique, the invoice already exists
-                    _logger.info('E-invoice already exists: %s', fattura['filename'])
-                    proxy_acks.append(id_transaction)
-                    continue
+    def _receive_fattura_pa(self, proxy_user):
+        ''' Check the proxy for incoming invoices for a specified proxy user.
+        '''
+        try:
+            res = proxy_user._make_request(
+                proxy_user._get_server_url() + '/api/l10n_it_edi/1/in/RicezioneInvoice',
+                params={'recipient_codice_fiscale': proxy_user.company_id.l10n_it_codice_fiscale})
+        except AccountEdiProxyError as e:
+            res = {}
+            _logger.warning('Error while receiving file from SdiCoop: %s', e)
 
-                file = proxy_user._decrypt_data(fattura['file'], fattura['key'])
+        retrigger = False
+        proxy_acks = []
+        for id_transaction, fattura in res.items():
 
-                try:
-                    tree = etree.fromstring(file)
-                except Exception:
-                    # should not happen as the file has been checked by SdiCoop
-                    _logger.info('Received file badly formatted, skipping: \n %s', file)
-                    continue
-                invoice = self.env['account.move'].with_company(company).create({'move_type': 'in_invoice'})
-                attachment = self.env['ir.attachment'].create({
-                    'name': fattura['filename'],
-                    'raw': file,
-                    'type': 'binary',
-                    'res_model': 'account.move',
-                    'res_id': invoice.id
-                })
-                if not self.env.context.get('test_skip_commit'):
-                    self.env.cr.commit() # In case something fails after, we still have the attachment
-                # So that we don't delete the attachment when deleting the invoice
-                attachment.res_id = False
-                attachment.res_model = False
-                invoice.unlink()
-                invoice = self.env.ref('l10n_it_edi.edi_fatturaPA')._create_invoice_from_xml_tree(fattura['filename'], tree)
-                attachment.write({'res_model': 'account.move',
-                                  'res_id': invoice.id})
+            # The server has a maximum number of documents it can send at a time
+            # If that maximum is reached, then we search for more
+            # by re-triggering the download cron, avoiding the timeout.
+            current_num, max_num = fattura.get('current_num', 0), fattura.get('max_num', 0)
+            retrigger = retrigger or current_num == max_num > 0
+
+            if self._save_incoming_attachment_fattura_pa(proxy_user, id_transaction, fattura['filename'], fattura['file'], fattura['key']):
                 proxy_acks.append(id_transaction)
-                if not self.env.context.get('test_skip_commit'):
-                    self.env.cr.commit()
 
+        if proxy_acks:
+            try:
+                proxy_user._make_request(
+                    proxy_user._get_server_url() + '/api/l10n_it_edi/1/ack',
+                    params={'transaction_ids': proxy_acks})
+            except AccountEdiProxyError as e:
+                _logger.warning('Error while receiving file from SdiCoop: %s', e)
 
-            if proxy_acks:
-                try:
-                    proxy_user._make_request(proxy_user._get_server_url() + '/api/l10n_it_edi/1/ack',
-                                            params={'transaction_ids': proxy_acks})
-                except AccountEdiProxyError as e:
-                    _logger.error('Error while receiving file from SdiCoop: %s', e)
+        if retrigger:
+            _logger.info('Retriggering "Receive invoices from the exchange system"...')
+            self.env.ref('l10n_it_edi.ir_cron_receive_fattura_pa_invoice')._trigger()
+
+    def _save_incoming_attachment_fattura_pa(self, proxy_user, id_transaction, filename, content, key):
+        ''' Save an incoming file from the SdI as an attachment.
+
+            :param proxy_user:     the user that saves the attachment.
+            :param id_transaction: id of the SdI transaction for communication with the IAP proxy.
+            :param filename:       name of the file to be saved.
+            :param content:        encrypted content of the file to be saved.
+            :param key:            key to decrypt the file.
+            :returns:              True if everything went well, or the file already exists.
+                                   False if the file cannot be parsed as an XML.
+        '''
+
+        company = proxy_user.company_id
+        # Name should be unique per company, the invoice already exists
+        Attachment = self.env['ir.attachment'].sudo().with_company(company)
+        if Attachment.search_count([
+            ('name', '=', filename),
+            ('res_model', '=', 'account.move'),
+            ('company_id', '=', proxy_user.company_id.id),
+        ], limit=1):
+            # name should be unique, the invoice already exists
+            _logger.info('E-invoice already exists: %s', filename)
+            return True
+
+        raw_content = proxy_user._decrypt_data(content, key)
+        invoice = self.env['account.move'].with_company(company).create({'move_type': 'in_invoice'})
+        attachment = Attachment.create({
+            'name': filename,
+            'raw': raw_content,
+            'type': 'binary',
+            'res_model': 'account.move',
+            'res_id': invoice.id
+        })
+
+        # In case something fails after, we still have the attachment
+        # So that we don't delete the attachment when deleting the invoice
+        self.env.cr.commit()
+
+        # Detach the attachment and unlink the stub invoice.
+        attachment.res_id = False
+        attachment.res_model = False
+        invoice.unlink()
+
+        # Import the invoice from the attachment and reattach.
+        invoice = self.with_company(company)._create_document_from_attachment(attachment)
+        attachment.write({'res_model': 'account.move', 'res_id': invoice.id})
+        self.env.cr.commit()
+
+        return True
 
     def _check_filename_is_fattura_pa(self, filename):
         return re.search("[A-Z]{2}[A-Za-z0-9]{2,28}_[A-Za-z0-9]{0,5}.((?i:xml.p7m|xml))", filename)
@@ -408,14 +463,15 @@ class AccountEdiFormat(models.Model):
                 return self._import_fattura_pa(decoded_content, invoice)
         return super()._update_invoice_from_binary(filename, content, extension, invoice)
 
-    def _l10n_it_get_partner_invoice(self, tree, company):
-        # Partner (first step to avoid warning 'Warning! You must first select a partner.'). <1.2>
-        elements = tree.xpath('//CedentePrestatore//IdCodice')
+    def _l10n_it_get_partner_invoice(self, tree, company, partner_info=None):
+        if partner_info is None:
+            partner_info = self._l10n_it_buyer_seller_info()['seller']
+        elements = tree.xpath(partner_info['vat_xpath'])
         partner = elements and self.env['res.partner'].search(
             ['&', ('vat', 'ilike', elements[0].text), '|', ('company_id', '=', company.id), ('company_id', '=', False)],
             limit=1)
         if not partner:
-            elements = tree.xpath('//CedentePrestatore//CodiceFiscale')
+            elements = tree.xpath(partner_info['codice_fiscale_xpath'])
             if elements:
                 codice = elements[0].text
                 domains = [[('l10n_it_codice_fiscale', '=', codice)]]
@@ -426,7 +482,7 @@ class AccountEdiFormat(models.Model):
                                      self.env['res.partner']._l10n_it_normalize_codice_fiscale(codice))])
                 partner = elements and self.env['res.partner'].search(
                     AND([OR(domains), OR([[('company_id', '=', company.id)], [('company_id', '=', False)]])]), limit=1)
-        if not partner:
+        if not partner and partner_info['role'] == 'seller':
             elements = tree.xpath('//DatiTrasmissione//Email')
             partner = elements and self.env['res.partner'].search(
                 ['&', '|', ('email', '=', elements[0].text), ('l10n_it_pec_email', '=', elements[0].text), '|',
@@ -452,7 +508,6 @@ class AccountEdiFormat(models.Model):
             ('company_id', '=', company.id),
             ('amount', '=', percentage),
             ('amount_type', '=', 'percent'),
-            ('type_tax_use', '=', 'purchase'),
         ] + (extra_domain or [])
 
         # As we're importing vendor bills, we're excluding Reverse Charge Taxes
@@ -463,10 +518,13 @@ class AccountEdiFormat(models.Model):
 
         return taxes[0] if taxes else taxes
 
-    def _l10n_it_edi_get_extra_info(self, company, document_type, body_tree):
+    def _l10n_it_edi_get_extra_info(self, company, document_type, body_tree, incoming=True):
         """ This function is meant to collect other information that has to be inserted on the invoice lines by submodules.
             :return extra_info, messages_to_log"""
-        return {'simplified': self._l10n_it_is_simplified_document_type(document_type)}, []
+        return {
+            'simplified': self._l10n_it_is_simplified_document_type(document_type),
+            'type_tax_use_domain': [('type_tax_use', '=', 'purchase' if incoming else 'sale')],
+        }, []
 
     def _import_fattura_pa(self, tree, invoice):
         """ Decodes a fattura_pa invoice into an invoice.
@@ -478,6 +536,8 @@ class AccountEdiFormat(models.Model):
         invoices = self.env['account.move']
         first_run = True
 
+        buyer_seller_info = self._l10n_it_buyer_seller_info()
+
         # possible to have multiple invoices in the case of an invoice batch, the batch itself is repeated for every invoice of the batch
         for body_tree in tree.xpath('//FatturaElettronicaBody'):
             if not first_run or not invoice:
@@ -485,17 +545,48 @@ class AccountEdiFormat(models.Model):
                 invoice = self.env['account.move']
             first_run = False
 
-            # Type must be present in the context to get the right behavior of the _default_journal method (account.move).
-            # journal_id must be present in the context to get the right behavior of the _default_account method (account.move.line).
-            elements = tree.xpath('//CessionarioCommittente//IdCodice')
-            company = elements and self.env['res.company'].search([('vat', 'ilike', elements[0].text)], limit=1)
-            if not company:
-                elements = tree.xpath('//CessionarioCommittente//CodiceFiscale')
-                company = elements and self.env['res.company'].search([('l10n_it_codice_fiscale', 'ilike', elements[0].text)], limit=1)
+            # There are 2 cases:
+            # - cron:
+            #     * Move direction (incoming / outgoing) flexible (no 'default_move_type')
+            #     * All companies are possible (no 'allowed_company_ids')
+            #     * I.e. used for import from tax agency
+            # - "Upload" button (invoices / bills view)
+            #     * Fixed move direction; the button sets the 'default_move_type'
+            #     * Companies are restricted to 'allowed_company_ids'.
+
+            default_move_type = self.env.context.get('default_move_type')
+            if default_move_type is None:
+                incoming_possibilities = [True, False]
+            elif default_move_type in invoice.get_purchase_types(include_receipts=True):
+                incoming_possibilities = [True]
+            elif default_move_type in invoice.get_sale_types(include_receipts=True):
+                incoming_possibilities = [False]
+            else:
+                _logger.warning("Cannot handle default_move_type '%s'.", default_move_type)
+                continue
+
+            allowed_company_ids = self.env.context.get('allowed_company_ids')
+            allowed_company_domain = [('id', 'in', allowed_company_ids)] if allowed_company_ids else []
+
+            for incoming in incoming_possibilities:
+                company_role, partner_role = ('buyer', 'seller') if incoming else ('seller', 'buyer')
+                company_info = buyer_seller_info[company_role]
+                elements = tree.xpath(company_info['vat_xpath'])
+                company = elements and self.env['res.company'].search([
+                    ('vat', 'ilike', elements[0].text),
+                    *allowed_company_domain
+                ], limit=1)
                 if not company:
-                    # Only invoices with a correct VAT or Codice Fiscale can be imported
-                    _logger.warning('No company found with VAT or Codice Fiscale like %r.', elements[0].text)
-                    continue
+                    elements = tree.xpath(company_info['codice_fiscale_xpath'])
+                    company = elements and self.env['res.company'].search([
+                        ('l10n_it_codice_fiscale', 'ilike', elements[0].text),
+                        *allowed_company_domain
+                    ], limit=1)
+                if company:
+                    break
+            else:
+                _logger.warning('Could not determine company (by looking at the VAT and codice fiscale in the buyer and/or seller section).')
+                continue
 
             # Refund type.
             # TD01 == invoice
@@ -514,25 +605,31 @@ class AccountEdiFormat(models.Model):
             if not move_type:
                 move_type = "in_invoice"
                 _logger.info('Document type not managed: %s. Invoice type is set by default.', document_type)
+            if not incoming and move_type.startswith('in_'):
+                move_type = 'out' + move_type[2:]
 
-            # Setup the context for the Invoice Form
             invoice_ctx = invoice.with_company(company) \
-                                 .with_context(default_move_type=move_type)
+                                 .with_context(
+                                    default_move_type=move_type,
+                                    account_predictive_bills_predict_product=False,
+                                    account_predictive_bills_predict_taxes=False
+                                )
 
             # move could be a single record (editing) or be empty (new).
             with invoice_ctx._get_edi_creation() as invoice_form:
 
                 # Collect extra info from the XML that may be used by submodules to further put information on the invoice lines
-                extra_info, message_to_log = self._l10n_it_edi_get_extra_info(company, document_type, body_tree)
+                extra_info, message_to_log = self._l10n_it_edi_get_extra_info(company, document_type, body_tree, incoming=incoming)
 
-                partner = self._l10n_it_get_partner_invoice(tree, company)
+                partner_info = buyer_seller_info[partner_role]
+                partner = self._l10n_it_get_partner_invoice(tree, company, partner_info)
                 if partner:
                     invoice_form.partner_id = partner
                 else:
                     message_to_log.append("%s<br/>%s" % (
-                        _("Vendor not found, useful informations from XML file:"),
+                        _("Partner not found, useful informations from XML file:"),
                         invoice._compose_info_message(
-                            tree, './/CedentePrestatore')))
+                            tree, partner_info['section_xpath'])))
 
                 # Numbering attributed by the transmitter. <1.1.2>
                 elements = tree.xpath('//ProgressivoInvio')
@@ -605,6 +702,13 @@ class AccountEdiFormat(models.Model):
                                 invoice._compose_info_message(elements[0], '.')
                             ))
 
+                # Information related to the purchase order <2.1.2>
+                po_refs = []
+                elements = body_tree.xpath('//DatiGenerali/DatiOrdineAcquisto/IdDocumento')
+                if elements:
+                    po_refs = [element.text.strip() for element in elements]
+                    invoice_form.invoice_origin = ", ".join(po_refs)
+
                 # Total amount. <2.4.2.6>
                 elements = body_tree.xpath('.//ImportoPagamento')
                 amount_total_import = 0
@@ -655,7 +759,10 @@ class AccountEdiFormat(models.Model):
                     elements = body_tree.xpath('.//DatiBeniServizi')
 
                 for element in (elements or []):
-                    invoice_line_form = invoice_form.invoice_line_ids.create({'move_id': invoice_form.id})
+                    invoice_line_form = invoice_form.invoice_line_ids.create({
+                        'move_id': invoice_form.id,
+                        'tax_ids': [fields.Command.clear()],
+                    })
                     if invoice_line_form:
                         message_to_log += self._import_fattura_pa_line(element, invoice_line_form, extra_info)
 
@@ -680,11 +787,12 @@ class AccountEdiFormat(models.Model):
                     general_discount = discounted_amount - taxable_amount
                     sequence = len(elements) + 1
 
-                    with invoice_form.invoice_line_ids.new() as invoice_line_global_discount:
-                        invoice_line_global_discount.tax_ids.clear()
-                        invoice_line_global_discount.sequence = sequence
-                        invoice_line_global_discount.name = 'SCONTO' if general_discount < 0 else 'MAGGIORAZIONE'
-                        invoice_line_global_discount.price_unit = general_discount
+                    invoice_form.invoice_line_ids = [Command.create({
+                        'sequence': sequence,
+                        'name': 'SCONTO' if general_discount < 0 else 'MAGGIORAZIONE',
+                        'price_unit': general_discount,
+                        'tax_ids': [],  # without this, a tax is automatically added to the line
+                    })]
 
             new_invoice = invoice_form
 
@@ -784,13 +892,14 @@ class AccountEdiFormat(models.Model):
                         percentage = round(tax_amount / price_subtotal * 100)
 
         natura_element = element.xpath('.//Natura')
-        invoice_line_form.tax_ids = []
+        invoice_line_form.tax_ids = ()
         if percentage is not None:
+            type_tax_use_domain = extra_info.get('type_tax_use_domain', [('type_tax_use', '=', 'purchase')])
             l10n_it_kind_exoneration = bool(natura_element) and natura_element[0].text
             conditions = (
                 l10n_it_kind_exoneration and [('l10n_it_kind_exoneration', '=', l10n_it_kind_exoneration)]
                 or [('l10n_it_has_exoneration', '=', False)]
-            )
+            ) + type_tax_use_domain
             tax = self._l10n_it_edi_search_tax_for_import(company, percentage, conditions)
             if tax:
                 invoice_line_form.tax_ids += tax
@@ -858,6 +967,7 @@ class AccountEdiFormat(models.Model):
             return {
                 'post': self._post_fattura_pa,
                 'post_batching': lambda move: (move.move_type, bool(move.l10n_it_edi_transaction)),
+                'batching_limit': 50,
             }
 
     def _l10n_it_edi_export_invoice_as_xml(self, invoice):
@@ -944,8 +1054,7 @@ class AccountEdiFormat(models.Model):
                 invoice.l10n_it_edi_transaction = response['id_transaction']
                 to_return[invoice].update({
                     'error': _('The invoice was sent to FatturaPA, but we are still awaiting a response. Click the link above to check for an update.'),
-                    'blocking_level': 'info',
-                })
+                    'blocking_level': 'info'})
         return to_return
 
     def _l10n_it_post_invoices_step_2(self, invoices):
@@ -954,6 +1063,7 @@ class AccountEdiFormat(models.Model):
         to_check = {i.l10n_it_edi_transaction: i for i in invoices}
         to_return = {}
         company = invoices.company_id
+
         proxy_user = self._get_proxy_user(company)
         if not proxy_user:  # proxy user should exist, because there is a check in _check_move_configuration
             return {invoice: {
@@ -981,50 +1091,20 @@ class AccountEdiFormat(models.Model):
             if state == 'awaiting_outcome':
                 to_return[invoice] = {
                     'error': _('The invoice was sent to FatturaPA, but we are still awaiting a response. Click the link above to check for an update.'),
-                    'blocking_level': 'info',
-                }
-                continue
+                    'blocking_level': 'info'}
+
             elif state == 'not_found':
                 # Invoice does not exist on proxy. Either it does not belong to this proxy_user or it was not created correctly when
                 # it was sent to the proxy.
                 to_return[invoice] = {'error': _('You are not allowed to check the status of this invoice.'), 'blocking_level': 'error'}
-                continue
 
-            if not response.get('file'): # It means there is no status update, so we can skip it
-                document = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'fattura_pa')
-                to_return[invoice] = {'error': document.error, 'blocking_level': document.blocking_level}
-                continue
-            xml = proxy_user._decrypt_data(response['file'], response['key'])
-            response_tree = etree.fromstring(xml)
-            if state == 'ricevutaConsegna':
+            elif state == 'ricevutaConsegna':
                 if invoice._is_commercial_partner_pa():
                     to_return[invoice] = {'error': _('The invoice has been succesfully transmitted. The addressee has 15 days to accept or reject it.')}
                 else:
                     to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
-            elif state == 'notificaScarto':
-                elements = response_tree.xpath('//Errore')
-                error_codes = [element.find('Codice').text for element in elements]
-                errors = [element.find('Descrizione').text for element in elements]
-                # Duplicated invoice
-                if '00404' in error_codes:
-                    idx = error_codes.index('00404')
-                    invoice.message_post(body=_(
-                        'This invoice number had already been submitted to the SdI, so it is'
-                        ' set as Sent. Please verify that the system is correctly configured,'
-                        ' because the correct flow does not need to send the same invoice'
-                        ' twice for any reason.\n'
-                        ' Original message from the SDI: %s', errors[idx]))
-                    to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
-                else:
-                    # Add helpful text if duplicated filename error
-                    if '00002' in error_codes:
-                        idx = error_codes.index('00002')
-                        errors[idx] = _(
-                            'The filename is duplicated. Try again (or adjust the FatturaPA Filename sequence).'
-                            ' Original message from the SDI: %s', [errors[idx]]
-                        )
-                    to_return[invoice] = {'error': self._format_error_message(_('The invoice has been refused by the Exchange System'), errors), 'blocking_level': 'error'}
-                    invoice.l10n_it_edi_transaction = False
+                proxy_acks.append(id_transaction)
+
             elif state == 'notificaMancataConsegna':
                 if invoice._is_commercial_partner_pa():
                     to_return[invoice] = {'error': _(
@@ -1045,15 +1125,63 @@ class AccountEdiFormat(models.Model):
                         ' System, and promptly notify him that the original is deposited'
                         ' in his personal area on the portal "Invoices and Fees" of the'
                         ' Revenue Agency.'))
-            elif state == 'notificaEsito':
-                outcome = response_tree.find('Esito').text
-                if outcome == 'EC01':
-                    to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
-                else:  # ECO2
-                    to_return[invoice] = {'error': _('The invoice was refused by the addressee.'), 'blocking_level': 'error'}
+                proxy_acks.append(id_transaction)
+
             elif state == 'NotificaDecorrenzaTermini':
+                # This condition is part of the Public Administration flow
+                invoice._message_log(body=_(
+                    'The invoice has been correctly issued. The Public Administration recipient'
+                    ' had 15 days to either accept or refused this document, but they did not reply,'
+                    ' so from now on we consider it accepted.'))
                 to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
-            proxy_acks.append(id_transaction)
+                proxy_acks.append(id_transaction)
+
+            # In the transaction states above, we don't need to read the attachment.
+            # In the following cases instead we need to read the information inside
+            # about the notification itself, i.e. the error message in case of rejection.
+            else:
+                attachment_file = response.get('file')
+                if not attachment_file: # It means there is no status update, so we can skip it
+                    document = invoice.edi_document_ids.filtered(lambda d: d.edi_format_id.code == 'fattura_pa')
+                    to_return[invoice] = {'error': document.error, 'blocking_level': document.blocking_level}
+                    continue
+
+                xml = proxy_user._decrypt_data(attachment_file, response['key'])
+                response_tree = etree.fromstring(xml)
+
+                if state == 'notificaScarto':
+                    elements = response_tree.xpath('//Errore')
+                    error_codes = [element.find('Codice').text for element in elements]
+                    errors = [element.find('Descrizione').text for element in elements]
+                    # Duplicated invoice
+                    if '00404' in error_codes:
+                        idx = error_codes.index('00404')
+                        invoice.message_post(body=_(
+                            'This invoice number had already been submitted to the SdI, so it is'
+                            ' set as Sent. Please verify that the system is correctly configured,'
+                            ' because the correct flow does not need to send the same invoice'
+                            ' twice for any reason.\n'
+                            ' Original message from the SDI: %s', errors[idx]))
+                        to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
+                    else:
+                        # Add helpful text if duplicated filename error
+                        if '00002' in error_codes:
+                            idx = error_codes.index('00002')
+                            errors[idx] = _(
+                                'The filename is duplicated. Try again (or adjust the FatturaPA Filename sequence).'
+                                ' Original message from the SDI: %s', [errors[idx]]
+                            )
+                        to_return[invoice] = {'error': self._format_error_message(_('The invoice has been refused by the Exchange System'), errors), 'blocking_level': 'error'}
+                        invoice.l10n_it_edi_transaction = False
+                    proxy_acks.append(id_transaction)
+
+                elif state == 'notificaEsito':
+                    outcome = response_tree.find('Esito').text
+                    if outcome == 'EC01':
+                        to_return[invoice] = {'attachment': invoice.l10n_it_edi_attachment_id, 'success': True}
+                    else:  # ECO2
+                        to_return[invoice] = {'error': _('The invoice was refused by the addressee.'), 'blocking_level': 'error'}
+                    proxy_acks.append(id_transaction)
 
         if proxy_acks:
             try:

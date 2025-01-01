@@ -29,7 +29,7 @@ from odoo.exceptions import AccessDenied, AccessError, MissingError
 from odoo.http import request, Response, ROUTING_KEYS, Stream
 from odoo.modules.registry import Registry
 from odoo.service import security
-from odoo.tools import consteq, submap
+from odoo.tools import get_lang, submap
 from odoo.tools.translate import code_translations
 from odoo.modules.module import get_resource_path, get_module_path
 
@@ -144,6 +144,11 @@ class IrHttp(models.AbstractModel):
             if isinstance(val, models.BaseModel) and isinstance(val._uid, RequestUID):
                 args[key] = val.with_user(request.env.uid)
 
+        # verify the default language set in the context is valid,
+        # otherwise fallback on the company lang, english or the first
+        # lang installed
+        request.update_context(lang=get_lang(request.env)._get_cached('code'))
+
     @classmethod
     def _dispatch(cls, endpoint):
         result = endpoint(**request.params)
@@ -163,7 +168,7 @@ class IrHttp(models.AbstractModel):
     def _serve_fallback(cls):
         model = request.env['ir.attachment']
         attach = model.sudo()._get_serve_attachment(request.httprequest.path)
-        if attach:
+        if attach and (attach.store_fname or attach.db_datas):
             return Stream.from_attachment(attach).get_response()
 
     @classmethod
@@ -211,7 +216,11 @@ class IrHttp(models.AbstractModel):
 
     @api.autovacuum
     def _gc_sessions(self):
-        http.root.session_store.vacuum()
+        if os.getenv("ODOO_SKIP_GC_SESSIONS"):
+            return
+        ICP = self.env["ir.config_parameter"]
+        max_lifetime = int(ICP.get_param('sessions.max_inactivity_seconds', http.SESSION_LIFETIME))
+        http.root.session_store.vacuum(max_lifetime=max_lifetime)
 
     @api.model
     def get_translations_for_webclient(self, modules, lang):
@@ -234,6 +243,8 @@ class IrHttp(models.AbstractModel):
             }
             lang_params['week_start'] = int(lang_params['week_start'])
             lang_params['code'] = lang
+            if lang_params["thousands_sep"]:
+                lang_params["thousands_sep"] = lang_params["thousands_sep"].replace(' ', '\N{NO-BREAK SPACE}')
 
         # Regional languages (ll_CC) must inherit/override their parent lang (ll), but this is
         # done server-side when the language is loaded, so we only need to load the user's lang.

@@ -72,13 +72,17 @@ export class StatusBarField extends Component {
         }
     }
 
+    get isDisabled() {
+        return this.props.isDisabled || this.props.record.isReadonly(this.props.name);
+    }
+
     getDropdownItemClassNames(item) {
         const classNames = [
             "btn",
             item.isSelected ? "btn-primary" : "btn-secondary",
             "o_arrow_button",
         ];
-        if (item.isSelected || this.props.isDisabled) {
+        if (item.isSelected || this.isDisabled) {
             classNames.push("disabled");
         }
         return classNames.join(" ");
@@ -141,10 +145,10 @@ export class StatusBarField extends Component {
     selectItem(item) {
         switch (this.props.type) {
             case "many2one":
-                this.props.update([item.id, item.name]);
+                this.props.update([item.id, item.name], { save: true });
                 break;
             case "selection":
-                this.props.update(item.id);
+                this.props.update(item.id, { save: true });
                 break;
         }
     }

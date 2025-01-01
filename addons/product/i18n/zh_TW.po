@@ -3,19 +3,20 @@
 # 	* product
 # 
 # Translators:
-# 敬雲 林 <chingyun@yuanchih-consult.com>, 2022
 # Martin Trigaux, 2022
+# 敬雲 林 <chingyun@yuanchih-consult.com>, 2022
 # Benson <Benson.Dr@Gmail.com>, 2023
-# Tony Ng, 2023
+# Wil Odoo, 2024
+# Tony Ng, 2024
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0+e\n"
+"Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 12:51+0000\n"
+"POT-Creation-Date: 2024-02-06 13:32+0000\n"
 "PO-Revision-Date: 2022-09-22 05:54+0000\n"
-"Last-Translator: Tony Ng, 2023\n"
-"Language-Team: Chinese (Taiwan) (https://www.transifex.com/odoo/teams/41243/zh_TW/)\n"
+"Last-Translator: Tony Ng, 2024\n"
+"Language-Team: Chinese (Taiwan) (https://app.transifex.com/odoo/teams/41243/zh_TW/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -144,8 +145,8 @@ msgid ""
 "<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"Arrow "
 "icon\" title=\"Arrow\"/>"
 msgstr ""
-"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"箭頭\" "
-"title=\"箭頭\"/>"
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"箭嘴圖示\" "
+"title=\"箭嘴\"/>"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_pricelist_view_kanban
@@ -402,7 +403,7 @@ msgstr "套用於"
 #: model_terms:ir.ui.view,arch_db:product.product_template_search_view
 #: model_terms:ir.ui.view,arch_db:product.product_variant_easy_edit_view
 msgid "Archived"
-msgstr "歸檔"
+msgstr "已封存"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_supplierinfo__sequence
@@ -422,7 +423,7 @@ msgstr "最多可以同時顯示 %d 個數量.刪除選定的數量以增加其�
 #: model:ir.model.fields,field_description:product.field_product_product__message_attachment_count
 #: model:ir.model.fields,field_description:product.field_product_template__message_attachment_count
 msgid "Attachment Count"
-msgstr "附件數"
+msgstr "附件數目"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_attribute__name
@@ -539,12 +540,12 @@ msgstr "帶門的機櫃"
 #: model:ir.model.fields,field_description:product.field_product_product__can_image_1024_be_zoomed
 #: model:ir.model.fields,field_description:product.field_product_template__can_image_1024_be_zoomed
 msgid "Can Image 1024 be zoomed"
-msgstr "畫素1024 可縮放"
+msgstr "圖像 1024 可放大"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__can_image_variant_1024_be_zoomed
 msgid "Can Variant Image 1024 be zoomed"
-msgstr "可縮放變體圖像 1024"
+msgstr "產品款式圖像 1024 可放大"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__purchase_ok
@@ -731,7 +732,7 @@ msgstr "轉角辦公桌左坐"
 #. module: product
 #: model:product.template,name:product.product_product_5_product_template
 msgid "Corner Desk Right Sit"
-msgstr "角台右坐"
+msgstr "轉角辦公桌右坐"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__standard_price
@@ -1262,9 +1263,7 @@ msgstr "勾選代表有新訊息需要您留意."
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__message_has_error
-#: model:ir.model.fields,help:product.field_product_product__message_has_sms_error
 #: model:ir.model.fields,help:product.field_product_template__message_has_error
-#: model:ir.model.fields,help:product.field_product_template__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "勾選代表有訊息發生傳送錯誤."
 
@@ -1298,25 +1297,25 @@ msgstr "圖像"
 #: model:ir.model.fields,field_description:product.field_product_product__image_1024
 #: model:ir.model.fields,field_description:product.field_product_template__image_1024
 msgid "Image 1024"
-msgstr "畫素 1024"
+msgstr "圖像 1024"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__image_128
 #: model:ir.model.fields,field_description:product.field_product_template__image_128
 msgid "Image 128"
-msgstr "畫素 128"
+msgstr "圖像 128"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__image_256
 #: model:ir.model.fields,field_description:product.field_product_template__image_256
 msgid "Image 256"
-msgstr "畫素 256"
+msgstr "圖像 256"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__image_512
 #: model:ir.model.fields,field_description:product.field_product_template__image_512
 msgid "Image 512"
-msgstr "畫素 512"
+msgstr "圖像 512"
 
 #. module: product
 #. odoo-python
@@ -1706,8 +1705,8 @@ msgstr "錯誤數"
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__message_needaction_counter
 #: model:ir.model.fields,help:product.field_product_template__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr "需要處理的消息數"
+msgid "Number of messages requiring action"
+msgstr "需要採取行動的訊息數目"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_product__message_has_error_counter
@@ -1796,7 +1795,7 @@ msgstr "百分比價格"
 #. module: product
 #: model:ir.model.fields.selection,name:product.selection__product_attribute__display_type__pills
 msgid "Pills"
-msgstr "藥丸"
+msgstr "藥丸形狀"
 
 #. module: product
 #. odoo-javascript
@@ -1830,7 +1829,7 @@ msgstr "請指定應應用此規則的產品變體"
 #. module: product
 #: model:ir.model.fields.selection,name:product.selection__res_config_settings__product_weight_in_lbs__1
 msgid "Pounds"
-msgstr "英鎊"
+msgstr "磅"
 
 #. module: product
 #: model_terms:product.template,website_description:product.product_product_4_product_template
@@ -2171,7 +2170,7 @@ msgstr "產品測量單位"
 #: model:ir.model.fields.selection,name:product.selection__product_pricelist_item__applied_on__0_product_variant
 #: model_terms:ir.ui.view,arch_db:product.product_normal_form_view
 msgid "Product Variant"
-msgstr "產品變體"
+msgstr "產品款式"
 
 #. module: product
 #. odoo-python
@@ -2298,7 +2297,7 @@ msgstr "包裝中包含的產品數量."
 #. module: product
 #: model:ir.model.fields.selection,name:product.selection__product_attribute__display_type__radio
 msgid "Radio"
-msgstr "單選"
+msgstr "單項選擇按鈕"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__code
@@ -2357,12 +2356,6 @@ msgstr "行"
 #: model:ir.model.fields,field_description:product.field_product_pricelist_item__rule_tip
 msgid "Rule Tip"
 msgstr "規則提示"
-
-#. module: product
-#: model:ir.model.fields,field_description:product.field_product_product__message_has_sms_error
-#: model:ir.model.fields,field_description:product.field_product_template__message_has_sms_error
-msgid "SMS Delivery error"
-msgstr "簡訊發送錯誤"
 
 #. module: product
 #: model_terms:ir.ui.view,arch_db:product.product_template_form_view
@@ -2468,9 +2461,9 @@ msgstr "如果這條規則只能用於一個產品模板，則指定一個模板
 #. module: product
 #: model:ir.model.fields,help:product.field_product_pricelist_item__price_surcharge
 msgid ""
-"Specify the fixed amount to add or substract(if negative) to the amount "
+"Specify the fixed amount to add or subtract (if negative) to the amount "
 "calculated with the discount."
-msgstr "指定固定金額來增加或減去(如果負)，用作折扣來計算金額."
+msgstr "指定一個固定金額，用以加至計算折扣在內的金額（如果為負數，則由該金額減去）。"
 
 #. module: product
 #: model:ir.model.fields,help:product.field_product_pricelist_item__price_max_margin
@@ -2661,6 +2654,13 @@ msgid ""
 msgstr "從該供應商採購的數量，將影響適用的價格，依供應商產品度量單位(如果不是任何)設定，否則，以產品的預設度量單位表示."
 
 #. module: product
+#. odoo-python
+#: code:addons/product/models/product_pricelist_item.py:0
+#, python-format
+msgid "The rounding method must be strictly positive."
+msgstr "捨入方式必須嚴格為正數。"
+
+#. module: product
 #: model:ir.model.fields,help:product.field_product_product__lst_price
 msgid ""
 "The sale price is managed from the product template. Click on the 'Configure"
@@ -2800,7 +2800,7 @@ msgstr "單價"
 #: model:ir.model.fields,field_description:product.field_product_supplierinfo__product_uom
 #: model:ir.model.fields,field_description:product.field_product_template__uom_id
 msgid "Unit of Measure"
-msgstr "單位"
+msgstr "量度單位"
 
 #. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__uom_name
@@ -3031,18 +3031,6 @@ msgid ""
 msgstr "我們特別注重細節，這就是為什麼我們的辦公桌品質絕佳."
 
 #. module: product
-#: model:ir.model.fields,field_description:product.field_product_product__website_message_ids
-#: model:ir.model.fields,field_description:product.field_product_template__website_message_ids
-msgid "Website Messages"
-msgstr "網站訊息"
-
-#. module: product
-#: model:ir.model.fields,help:product.field_product_product__website_message_ids
-#: model:ir.model.fields,help:product.field_product_template__website_message_ids
-msgid "Website communication history"
-msgstr "網站溝通記錄"
-
-#. module: product
 #: model:ir.model.fields,field_description:product.field_product_product__weight
 #: model:ir.model.fields,field_description:product.field_product_template__weight
 #: model_terms:ir.ui.view,arch_db:product.res_config_settings_view_form
@@ -3181,10 +3169,9 @@ msgstr ""
 #, python-format
 msgid ""
 "You cannot delete the value %s because it is used on the following products:\n"
-"%s"
+"%s\n"
+" If the value has been associated to a product in the past, you will not be able to delete it."
 msgstr ""
-"您不能刪除值 %s，因為它用於以下產品:\n"
-"%s"
 
 #. module: product
 #. odoo-python
@@ -3208,6 +3195,13 @@ msgstr ""
 "(%s)\n"
 "，它們用於其他價格表:\n"
 "%s"
+
+#. module: product
+#. odoo-python
+#: code:addons/product/models/product_attribute.py:0
+#, python-format
+msgid "You cannot delete value %s because it was used in some products."
+msgstr "不可刪除值 %s，因為它曾在部份產品中使用過。"
 
 #. module: product
 #. odoo-python

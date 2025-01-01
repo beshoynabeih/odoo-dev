@@ -3,24 +3,33 @@
 # 	* analytic
 # 
 # Translators:
-# Martin Trigaux, 2022
-# Jorunn D. Newth, 2022
 # Lars Aam <lars.aam@vikenfiber.no>, 2022
 # Marius Stedjan <marius@stedjan.com>, 2023
+# Martin Trigaux, 2023
+# Jorunn D. Newth, 2023
+# cecilieflyt, 2024
+# Rune Restad, 2024
 # 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 10:33+0000\n"
+"POT-Creation-Date: 2023-05-23 08:23+0000\n"
 "PO-Revision-Date: 2022-09-22 05:45+0000\n"
-"Last-Translator: Marius Stedjan <marius@stedjan.com>, 2023\n"
-"Language-Team: Norwegian Bokmål (https://www.transifex.com/odoo/teams/41243/nb/)\n"
+"Last-Translator: Rune Restad, 2024\n"
+"Language-Team: Norwegian Bokmål (https://app.transifex.com/odoo/teams/41243/nb/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: nb\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: analytic
+#. odoo-python
+#: code:addons/analytic/models/analytic_account.py:0
+#, python-format
+msgid "%s (copy)"
+msgstr "%s (kopi)"
 
 #. module: analytic
 #. odoo-javascript
@@ -32,12 +41,12 @@ msgstr ""
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
 msgid "<span class=\"o_stat_text\">Analytic Accounts</span>"
-msgstr ""
+msgstr "<span class=\"o_stat_text\">Analytiske kontoer</span>"
 
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_account_form
 msgid "<span class=\"o_stat_text\">Gross Margin</span>"
-msgstr ""
+msgstr "<span class=\"o_stat_text\">Bruttomargin</span>"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_plan__account_ids
@@ -53,13 +62,6 @@ msgstr "Handling påkrevd"
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__active
 msgid "Active"
 msgstr "Aktiv"
-
-#. module: analytic
-#. odoo-javascript
-#: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.xml:0
-#, python-format
-msgid "Add a line"
-msgstr "Legg til linje"
 
 #. module: analytic
 #: model_terms:ir.actions.act_window,help:analytic.action_account_analytic_account_form
@@ -124,12 +126,18 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_distribution_model_form_view
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_distribution_model_tree_view
 msgid "Analytic Distribution Model"
-msgstr ""
+msgstr "Analytisk distribusjonsmodell"
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.action_analytic_distribution_model
 msgid "Analytic Distribution Models"
-msgstr ""
+msgstr "Analytiske distribusjonsmodeller"
+
+#. module: analytic
+#: model:ir.model.fields,field_description:analytic.field_account_analytic_distribution_model__analytic_distribution_search
+#: model:ir.model.fields,field_description:analytic.field_analytic_mixin__analytic_distribution_search
+msgid "Analytic Distribution Search"
+msgstr "Søk etter analytisk fordeling"
 
 #. module: analytic
 #. odoo-javascript
@@ -141,7 +149,7 @@ msgstr ""
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_line_form
 msgid "Analytic Item"
-msgstr ""
+msgstr "Analytisk registrering"
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_line_action_entries
@@ -170,12 +178,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_applicability__analytic_plan_id
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_line_filter
 msgid "Analytic Plan"
-msgstr ""
+msgstr "Analytisk plan"
 
 #. module: analytic
 #: model:ir.model,name:analytic.model_account_analytic_applicability
 msgid "Analytic Plan's Applicabilities"
-msgstr ""
+msgstr "Analyseringsplanens anvendeligheter."
 
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_plan_action
@@ -183,13 +191,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_form_view
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_plan_tree_view
 msgid "Analytic Plans"
-msgstr ""
+msgstr "Analytiske planer"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_distribution_model__analytic_precision
 #: model:ir.model.fields,field_description:analytic.field_analytic_mixin__analytic_precision
 msgid "Analytic Precision"
-msgstr ""
+msgstr "Analytisk presisjon"
 
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.account_analytic_distribution_model_form_view
@@ -201,14 +209,14 @@ msgstr ""
 #: code:addons/analytic/models/analytic_plan.py:0
 #, python-format
 msgid "Analytical Accounts"
-msgstr ""
+msgstr "Analytiske kontoer"
 
 #. module: analytic
 #. odoo-python
 #: code:addons/analytic/models/analytic_plan.py:0
 #, python-format
 msgid "Analytical Plans"
-msgstr ""
+msgstr "Analytiske planer"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_applicability__applicability
@@ -282,7 +290,7 @@ msgstr "Barn"
 #. module: analytic
 #: model_terms:ir.actions.act_window,help:analytic.account_analytic_plan_action
 msgid "Click to add a new analytic account plan."
-msgstr ""
+msgstr "Klikk for å legge til en ny analytisk kontoplan"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_plan__color
@@ -378,7 +386,7 @@ msgstr "Dato"
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_account__active
 msgid "Deactivate the account."
-msgstr ""
+msgstr "Deaktiver konto"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__debit
@@ -394,7 +402,7 @@ msgstr ""
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_plan__default_applicability
 msgid "Default Applicability"
-msgstr ""
+msgstr "Standard anvendelse"
 
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_deltapc
@@ -427,13 +435,6 @@ msgid "Domain"
 msgstr "Domene"
 
 #. module: analytic
-#. odoo-javascript
-#: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
-#, python-format
-msgid "Editing"
-msgstr ""
-
-#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__message_follower_ids
 msgid "Followers"
 msgstr "Følgere"
@@ -446,7 +447,7 @@ msgstr "Følgere (partnere)"
 #. module: analytic
 #: model:ir.actions.act_window,name:analytic.account_analytic_line_action
 msgid "Gross Margin"
-msgstr ""
+msgstr "Brutto fortjeneste"
 
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_account_search
@@ -492,7 +493,7 @@ msgstr ""
 #: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
 #, python-format
 msgid "Invalid"
-msgstr ""
+msgstr "Ugyldig"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__message_is_follower
@@ -555,7 +556,7 @@ msgstr "Hovedvedlegg"
 #: model:ir.model.fields.selection,name:analytic.selection__account_analytic_plan__default_applicability__mandatory
 #, python-format
 msgid "Mandatory"
-msgstr ""
+msgstr "Obligatorisk"
 
 #. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__message_has_error
@@ -624,8 +625,8 @@ msgstr "Antall feil"
 
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_account__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr "Antall meldinger som krever handling"
+msgid "Number of messages requiring action"
+msgstr "Antall beskjeder som trenger oppfølging"
 
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_account__message_has_error_counter
@@ -649,7 +650,14 @@ msgstr ""
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_internal
 msgid "Operating Costs"
-msgstr ""
+msgstr "Operasjonskostnader"
+
+#. module: analytic
+#. odoo-python
+#: code:addons/analytic/models/analytic_mixin.py:0
+#, python-format
+msgid "Operation not supported"
+msgstr "Operasjon ikke støttet"
 
 #. module: analytic
 #. odoo-javascript
@@ -658,7 +666,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:analytic.selection__account_analytic_plan__default_applicability__optional
 #, python-format
 msgid "Optional"
-msgstr ""
+msgstr "Valgfri"
 
 #. module: analytic
 #: model:ir.model.fields.selection,name:analytic.selection__account_analytic_line__category__other
@@ -704,6 +712,13 @@ msgid "Quantity"
 msgstr "Antall"
 
 #. module: analytic
+#. odoo-javascript
+#: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
+#, python-format
+msgid "Quick search: %s"
+msgstr ""
+
+#. module: analytic
 #: model:ir.model.fields,field_description:analytic.field_account_analytic_account__code
 msgid "Reference"
 msgstr "Referanse"
@@ -737,6 +752,20 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_line_filter
 msgid "Search Analytic Lines"
 msgstr "Søk analytiske linjer"
+
+#. module: analytic
+#. odoo-javascript
+#: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
+#, python-format
+msgid "Search More..."
+msgstr "Søk mer..."
+
+#. module: analytic
+#. odoo-javascript
+#: code:addons/analytic/static/src/components/analytic_distribution/analytic_distribution.js:0
+#, python-format
+msgid "Search: Analytic Account"
+msgstr ""
 
 #. module: analytic
 #: model:ir.model.fields,help:analytic.field_account_analytic_distribution_model__company_id
@@ -789,7 +818,7 @@ msgstr ""
 #. module: analytic
 #: model:account.analytic.account,name:analytic.analytic_absences
 msgid "Time Off"
-msgstr "Ferie"
+msgstr "Fravær"
 
 #. module: analytic
 #: model_terms:ir.ui.view,arch_db:analytic.view_account_analytic_line_tree

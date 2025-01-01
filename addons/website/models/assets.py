@@ -74,7 +74,7 @@ class Assets(models.AbstractModel):
                 else:
                     font_family_attachments = IrAttachment
                     font_content = requests.get(
-                        f'https://fonts.googleapis.com/css?family={font_name}&display=swap',
+                        f'https://fonts.googleapis.com/css?family={font_name}:300,300i,400,400i,700,700i&display=swap',
                         timeout=5, headers=headers_woff2,
                     ).content.decode()
 
@@ -123,6 +123,13 @@ class Assets(models.AbstractModel):
         updatedFileContent = self._get_content_from_url(custom_url) or self._get_content_from_url(url)
         updatedFileContent = updatedFileContent.decode('utf-8')
         for name, value in values.items():
+            # Protect variable names so they cannot be computed as numbers
+            # on SCSS compilation (e.g. var(--700) => var(700)).
+            if isinstance(value, str):
+                value = re.sub(
+                    r"var\(--([0-9]+)\)",
+                    lambda matchobj: "var(--#{" + matchobj.group(1) + "})",
+                    value)
             pattern = "'%s': %%s,\n" % name
             regex = re.compile(pattern % ".+")
             replacement = pattern % value

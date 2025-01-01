@@ -352,6 +352,7 @@ export class KanbanDynamicGroupList extends DynamicGroupList {
         this.previousParams = state.previousParams || "[]";
 
         this.groupBy = this.groupBy.slice(0, 1);
+        this.limit = null;
 
         this.model.addEventListener("group-updated", async ({ detail }) => {
             if (this.groups.some((g) => g.id === detail.group.id)) {
@@ -393,16 +394,31 @@ export class KanbanDynamicGroupList extends DynamicGroupList {
      */
     async load() {
         const load = async () => {
-            const previousGroups = this.groups.map((g, i) => [g, i]);
             await super.load();
             if (this.previousParams === this.currentParams) {
-                for (const [group, index] of previousGroups) {
-                    const newGroup = this.groups.find((g) => group.valueEquals(g.value));
-                    if (!group.deleted && !newGroup) {
-                        group.empty();
+                this.previousGroupsStates.forEach((groupState, index) => {
+                    const groupDisapeared = !this.groups.find((g) =>
+                        g.valueEquals(groupState.value)
+                    );
+                    if (!groupState.deleted && groupDisapeared) {
+                        const { value, displayName, __rawValue, isFolded, groupDomain, range } =
+                            groupState;
+                        const group = this.model.createDataPoint("group", {
+                            ...this.commonGroupParams,
+                            count: 0,
+                            value,
+                            displayName,
+                            __rawValue,
+                            aggregates: {},
+                            groupByField: this.groupByField,
+                            groupDomain,
+                            isFolded,
+                            range,
+                            rawContext: this.rawContext,
+                        });
                         this.groups.splice(index, 0, group);
                     }
-                }
+                });
             }
         };
         await this._loadWithProgressData(load());
@@ -483,7 +499,6 @@ export class KanbanDynamicGroupList extends DynamicGroupList {
         }
 
         // Move from one group to another
-        const fullyLoadGroup = targetGroup.isFolded;
         if (dataGroupId !== targetGroupId) {
             const refIndex = targetGroup.list.records.findIndex((r) => r.id === refId);
             // Quick update: moves the record at the right position and notifies components
@@ -498,10 +513,11 @@ export class KanbanDynamicGroupList extends DynamicGroupList {
             };
 
             try {
-                await record.update({ [this.groupByField.name]: value });
+                await record.update({ [this.groupByField.name]: value }, { silent: true });
                 const saved = await record.save({ noReload: true });
                 if (!saved) {
                     abort();
+                    this.model.notify();
                     return;
                 }
             } catch (err) {
@@ -509,26 +525,21 @@ export class KanbanDynamicGroupList extends DynamicGroupList {
                 throw err;
             }
 
-            const promises = [this.updateGroupProgressData([sourceGroup, targetGroup], true)];
-            if (fullyLoadGroup) {
-                // The group is folded: we need to load it
-                // In this case since we load after saving the record there is no
-                // need to reload the record nor to resequence the list.
-                promises.push(targetGroup.toggle());
-            } else {
-                // Record can be loaded along with the group metadata
+            const promises = [];
+            const groupsToReload = [sourceGroup];
+            if (!targetGroup.isFolded) {
+                groupsToReload.push(targetGroup);
                 promises.push(record.load());
             }
-
+            promises.push(this.updateGroupProgressData(groupsToReload, true));
             await Promise.all(promises);
         }
 
-        if (fullyLoadGroup) {
-            this.model.notify();
-        } else {
-            // Only trigger resequence if the group hasn't been fully loaded
+        if (!targetGroup.isFolded) {
+            // Only trigger resequence if the group isn't folded
             await targetGroup.list.resequence(dataRecordId, refId);
         }
+        this.model.notify();
 
         this.model.transaction.commit(dataRecordId);
 

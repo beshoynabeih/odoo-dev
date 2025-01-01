@@ -152,6 +152,7 @@ class ViewCustom(models.Model):
     _description = 'Custom View'
     _order = 'create_date desc'  # search(limit=1) should return the last customization
     _rec_name = 'user_id'
+    _allow_sudo_commands = False
 
     ref_id = fields.Many2one('ir.ui.view', string='Original View', index=True, required=True, ondelete='cascade')
     user_id = fields.Many2one('res.users', string='User', index=True, required=True, ondelete='cascade')
@@ -227,6 +228,7 @@ class View(models.Model):
     _name = 'ir.ui.view'
     _description = 'View'
     _order = "priority,name,id"
+    _allow_sudo_commands = False
 
     name = fields.Char(string='View Name', required=True)
     model = fields.Char(index=True)
@@ -288,7 +290,7 @@ actual arch.
          """)
 
     @api.depends('arch_db', 'arch_fs', 'arch_updated')
-    @api.depends_context('read_arch_from_file', 'lang')
+    @api.depends_context('read_arch_from_file', 'lang', 'edit_translations')
     def _compute_arch(self):
         def resolve_external_ids(arch_fs, view_xml_id):
             def replacer(m):
@@ -298,6 +300,10 @@ actual arch.
                 return m.group('prefix') + str(self.env['ir.model.data']._xmlid_to_res_id(xmlid))
             return re.sub(r'(?P<prefix>[^%])%\((?P<xmlid>.*?)\)[ds]', replacer, arch_fs)
 
+        lang = self.env.lang or 'en_US'
+        env_en = self.with_context(edit_translations=None, lang='en_US').env
+        env_lang = self.with_context(lang=lang).env
+        field_arch_db = self._fields['arch_db']
         for view in self:
             arch_fs = None
             read_file = self._context.get('read_arch_from_file') or \
@@ -311,9 +317,13 @@ actual arch.
                     # replace %(xml_id)s, %(xml_id)d, %%(xml_id)s, %%(xml_id)d by the res_id
                     if arch_fs:
                         arch_fs = resolve_external_ids(arch_fs, xml_id).replace('%%', '%')
-                        if self.env.context.get('lang'):
-                            tr = self._fields['arch_db'].get_trans_func(view)
-                            arch_fs = tr(view.id, arch_fs)
+                        translation_dictionary = field_arch_db.get_translation_dictionary(
+                            view.with_env(env_en).arch_db, {lang: view.with_env(env_lang).arch_db}
+                        )
+                        arch_fs = field_arch_db.translate(
+                            lambda term: translation_dictionary[term][lang],
+                            arch_fs
+                        )
                 else:
                     _logger.warning("View %s: Full path [%s] cannot be found.", xml_id, view.arch_fs)
                     arch_fs = False
@@ -357,11 +367,13 @@ actual arch.
             arch = False
             if mode == 'soft':
                 arch = view.arch_prev
+                write_dict = {'arch_db': arch}
             elif mode == 'hard' and view.arch_fs:
                 arch = view.with_context(read_arch_from_file=True, lang=None).arch
+                write_dict = {'arch_db': arch, 'arch_prev': False, 'arch_updated': False}
             if arch:
                 # Don't save current arch in previous since we reset, this arch is probably broken
-                view.with_context(no_save_prev=True, lang=None).write({'arch_db': arch})
+                view.with_context(no_save_prev=True, lang=None).write(write_dict)
 
     @api.depends('write_date')
     def _compute_model_data_id(self):
@@ -584,10 +596,7 @@ actual arch.
         return super(View, self).unlink()
 
     def _update_field_translations(self, fname, translations, digest=None):
-        res = super()._update_field_translations(fname, translations, digest)
-        if fname == 'arch_db' and 'install_filename' not in self._context:
-            self.write({'arch_updated': True})
-        return res
+        return super(View, self.with_context(no_save_prev=True))._update_field_translations(fname, translations, digest)
 
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
@@ -672,8 +681,8 @@ actual arch.
         views = self.browse(row[0] for row in rows)
 
         # optimization: fill in cache of inherit_id and mode
-        self.env.cache.update(views, type(self).inherit_id, [row[1] for row in rows])
-        self.env.cache.update(views, type(self).mode, [row[2] for row in rows])
+        self.env.cache.update(views, self._fields['inherit_id'], [row[1] for row in rows])
+        self.env.cache.update(views, self._fields['mode'], [row[2] for row in rows])
 
         # During an upgrade, we can only use the views that have been
         # fully upgraded already.
@@ -1347,7 +1356,7 @@ actual arch.
         if func is not None:
             return func(node, name_manager)
         # by default views are non-editable
-        return node.tag not in (item[0] for item in type(self).type.selection)
+        return node.tag not in (item[0] for item in self._fields['type'].selection)
 
     def _editable_tag_form(self, node, name_manager):
         return True
@@ -1579,7 +1588,7 @@ actual arch.
             elif not name:
                 self._raise_view_error(_("Button must have a name"), node)
             elif type_ == 'object':
-                func = getattr(type(name_manager.model), name, None)
+                func = getattr(name_manager.model, name, None)
                 if not func:
                     msg = _(
                         "%(action_name)s is not a valid action on %(model_name)s",
@@ -1595,7 +1604,7 @@ actual arch.
                     )
                     self._raise_view_error(msg, node)
                 try:
-                    inspect.signature(func).bind(self=name_manager.model)
+                    inspect.signature(func).bind()
                 except TypeError:
                     msg = "%s on %s has parameters and cannot be called from a button"
                     self._log_view_warning(msg % (name, name_manager.model._name), node)
@@ -2289,6 +2298,8 @@ class ResetViewArchWizard(models.TransientModel):
                 view.arch_diff = get_diff(
                     (view_arch, get_table_name(view.view_id) if view.reset_mode == 'other_view' else _("Current Arch")),
                     (diff_to, diff_to_name),
+                    custom_style=False,
+                    dark_color_scheme=request and request.httprequest.cookies.get('color_scheme') == 'dark',
                 )
                 view.has_diff = view_arch != diff_to
 
@@ -2348,18 +2359,38 @@ class Model(models.AbstractModel):
         :returns: a form view as an lxml document
         :rtype: etree._Element
         """
-        group = E.group(col="4")
+        sheet = E.sheet(string=self._description)
+        main_group = E.group()
+        left_group = E.group()
+        right_group = E.group()
         for fname, field in self._fields.items():
             if field.automatic:
                 continue
             elif field.type in ('one2many', 'many2many', 'text', 'html'):
-                group.append(E.newline())
-                group.append(E.field(name=fname, colspan="4"))
-                group.append(E.newline())
+                # append to sheet left and right group if needed
+                if len(left_group) > 0:
+                    main_group.append(left_group)
+                    left_group = E.group()
+                if len(right_group) > 0:
+                    main_group.append(right_group)
+                    right_group = E.group()
+                if len(main_group) > 0:
+                    sheet.append(main_group)
+                    main_group = E.group()
+                # add an oneline group for field type 'one2many', 'many2many', 'text', 'html'
+                sheet.append(E.group(E.field(name=fname)))
             else:
-                group.append(E.field(name=fname))
-        group.append(E.separator())
-        return E.form(E.sheet(group, string=self._description))
+                if len(left_group) > len(right_group):
+                    right_group.append(E.field(name=fname))
+                else:
+                    left_group.append(E.field(name=fname))
+        if len(left_group) > 0:
+            main_group.append(left_group)
+        if len(right_group) > 0:
+            main_group.append(right_group)
+        sheet.append(main_group)
+        sheet.append(E.group(E.separator()))
+        return E.form(sheet)
 
     @api.model
     def _get_default_search_view(self):

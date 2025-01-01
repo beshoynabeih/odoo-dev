@@ -104,16 +104,20 @@ export class PropertyValue extends Component {
                 const hasAccess = many2manyValue[1] !== null;
                 return {
                     id: many2manyValue[0],
-                    text: hasAccess ? many2manyValue[1] : _lt('No Access'),
-                    onClick: hasAccess && this.clickableRelational
-                        && (async () => await this._openRecord(this.props.comodel, many2manyValue[0])),
+                    text: hasAccess ? many2manyValue[1] : _lt("No Access"),
+                    onClick:
+                        hasAccess &&
+                        this.clickableRelational &&
+                        (async () => await this._openRecord(this.props.comodel, many2manyValue[0])),
                     onDelete:
-                        !this.props.readonly && hasAccess
-                        && (() => this.onMany2manyDelete(many2manyValue[0])),
+                        !this.props.readonly &&
+                        hasAccess &&
+                        (() => this.onMany2manyDelete(many2manyValue[0])),
                     colorIndex: 0,
-                    img: this.showAvatar && hasAccess
-                        ? `/web/image/${this.props.comodel}/${many2manyValue[0]}/avatar_128`
-                        : null,
+                    img:
+                        this.showAvatar && hasAccess
+                            ? `/web/image/${this.props.comodel}/${many2manyValue[0]}/avatar_128`
+                            : null,
                 };
             });
         } else if (this.props.type === "tags") {
@@ -134,7 +138,10 @@ export class PropertyValue extends Component {
         }
         let domain = new Domain(this.props.domain);
         if (this.props.type === "many2many" && this.props.value) {
-            domain = Domain.and([domain, [['id', 'not in', this.props.value.map(rec => rec[0])]]])
+            domain = Domain.and([
+                domain,
+                [["id", "not in", this.props.value.map((rec) => rec[0])]],
+            ]);
         }
         return domain.toList();
     }
@@ -149,6 +156,10 @@ export class PropertyValue extends Component {
 
         if (this.props.type === "many2one" && value && value.length === 2) {
             return formatMany2one(value);
+        } else if (this.props.type === "integer") {
+            return formatInteger(value || 0);
+        } else if (this.props.type === "float") {
+            return formatFloat(value || 0);
         } else if (!value) {
             return false;
         } else if (this.props.type === "datetime" && value) {
@@ -157,10 +168,6 @@ export class PropertyValue extends Component {
             return formatDate(value);
         } else if (this.props.type === "selection") {
             return this.props.selection.find((option) => option[0] === value)[1];
-        } else if (this.props.type === "float") {
-            return formatFloat(value);
-        } else if (this.props.type === "integer") {
-            return formatInteger(value);
         }
         return value.toString();
     }
@@ -180,8 +187,10 @@ export class PropertyValue extends Component {
      * @returns {boolean}
      */
     get showAvatar() {
-        return ["many2one", "many2many"].includes(this.props.type)
-            && ["res.users", "res.partner"].includes(this.props.comodel);
+        return (
+            ["many2one", "many2many"].includes(this.props.type) &&
+            ["res.users", "res.partner"].includes(this.props.comodel)
+        );
     }
 
     /* --------------------------------------------------------
@@ -283,10 +292,6 @@ export class PropertyValue extends Component {
      * @param {object} params
      */
     async onQuickCreate(name, params = {}) {
-        if (params.triggeredOnBlur) {
-            this.onValueChange(false);
-            return;
-        }
         const result = await this.orm.call(this.props.comodel, "name_create", [name], {
             context: this.props.context,
         });
@@ -350,6 +355,7 @@ PropertyValue.props = {
     context: { type: Object },
     readonly: { type: Boolean, optional: true },
     canChangeDefinition: { type: Boolean, optional: true },
+    checkDefinitionWriteAccess: { type: Function, optional: true },
     selection: { type: Array, optional: true },
     tags: { type: Array, optional: true },
     onChange: { type: Function, optional: true },

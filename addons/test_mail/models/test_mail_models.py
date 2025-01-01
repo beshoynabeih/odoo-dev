@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class MailTestSimple(models.Model):
@@ -26,6 +26,16 @@ class MailTestGateway(models.Model):
     name = fields.Char()
     email_from = fields.Char()
     custom_field = fields.Char()
+
+    @api.model
+    def message_new(self, msg_dict, custom_values=None):
+        """ Check override of 'message_new' allowing to update record values
+        base on incoming email. """
+        defaults = {
+            'email_from': msg_dict.get('from'),
+        }
+        defaults.update(custom_values or {})
+        return super().message_new(msg_dict, custom_values=defaults)
 
 
 class MailTestGatewayGroups(models.Model):
@@ -135,10 +145,22 @@ class MailTestTicket(models.Model):
     def _notify_get_recipients_groups(self, msg_vals=None):
         """ Activate more groups to test query counters notably (and be backward
         compatible for tests). """
-        groups = super(MailTestTicket, self)._notify_get_recipients_groups(msg_vals=msg_vals)
+        local_msg_vals = dict(msg_vals or {})
+        groups = super()._notify_get_recipients_groups(msg_vals=msg_vals)
         for group_name, _group_method, group_data in groups:
             if group_name == 'portal':
                 group_data['active'] = True
+            elif group_name == 'customer':
+                group_data['active'] = True
+                group_data['has_button_access'] = True
+                group_data['actions'] = [{
+                    'url': self._notify_get_action_link(
+                        'controller',
+                        controller='/test_mail/do_stuff',
+                        **local_msg_vals
+                    ),
+                    'title': _('NotificationButtonTitle')
+                }]
 
         return groups
 

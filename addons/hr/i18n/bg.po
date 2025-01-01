@@ -3,7 +3,6 @@
 # 	* hr
 # 
 # Translators:
-# Nikola Iliev, 2023
 # Rosen Vladimirov <vladimirov.rosen@gmail.com>, 2023
 # Ivan Goychev <igoychev.projects@gmail.com>, 2023
 # Kaloyan Naumov <kaloyan@lumnus.net>, 2023
@@ -14,15 +13,20 @@
 # Maria Boyadjieva <marabo2000@gmail.com>, 2023
 # Albena Mincheva <albena_vicheva@abv.bg>, 2023
 # Ивайло Малинов <iv.malinov@gmail.com>, 2023
+# KeyVillage, 2023
+# Rumena Georgieva <rumena.georgieva@gmail.com>, 2024
+# Elena Varbanova, 2024
+# Petko Karamotchev, 2024
+# Milena Georgieva, 2024
 # 
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 16.0+e\n"
+"Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 12:49+0000\n"
+"POT-Creation-Date: 2024-02-06 13:31+0000\n"
 "PO-Revision-Date: 2022-09-22 05:46+0000\n"
-"Last-Translator: Ивайло Малинов <iv.malinov@gmail.com>, 2023\n"
-"Language-Team: Bulgarian (https://www.transifex.com/odoo/teams/41243/bg/)\n"
+"Last-Translator: Milena Georgieva, 2024\n"
+"Language-Team: Bulgarian (https://app.transifex.com/odoo/teams/41243/bg/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -58,61 +62,6 @@ msgstr "&amp;nbsp;"
 #: model:ir.actions.report,print_report_name:hr.hr_employee_print_badge
 msgid "'Print Badge - %s' % (object.name).replace('/', '')"
 msgstr "'Печат на карта - %s' % (object.name).replace('/', '')"
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "1 Onsite Interview"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "1 Phone Call"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "12 days / year, including <br>6 of your choice."
-msgstr "12 дни годишно, включвайки <br>6 по ваш избор."
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "2 open days"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "4 Days after Interview"
-msgstr ""
 
 #. module: hr
 #. odoo-python
@@ -169,17 +118,6 @@ msgid ""
 "'presence_absent_active')]}\" aria-label=\"Present but not active\" "
 "title=\"Present but not active\" name=\"presence_absent_active\"/>"
 msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "<small><b>READ</b></small>"
-msgstr "<small><b>ЧЕТЕНЕ</b></small>"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_kanban
@@ -293,58 +231,14 @@ msgid "<span class=\"o_stat_text\">Employee(s)</span>"
 msgstr ""
 
 #. module: hr
-#: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
-msgid "<span class=\"ps-1\">new Employees</span>"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "<span class=\"text-muted small\">Days to get an Offer</span>"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "<span class=\"text-muted small\">Process</span>"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,job_details:hr.job_ceo
-#: model_terms:hr.job,job_details:hr.job_consultant
-#: model_terms:hr.job,job_details:hr.job_cto
-#: model_terms:hr.job,job_details:hr.job_developer
-#: model_terms:hr.job,job_details:hr.job_hrm
-#: model_terms:hr.job,job_details:hr.job_marketing
-#: model_terms:hr.job,job_details:hr.job_trainee
-msgid "<span class=\"text-muted small\">Time to Answer</span>"
-msgstr ""
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_form
 msgid "<span>Km</span>"
 msgstr "<span>Км</span>"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "A full-time position <br>Attractive salary package."
-msgstr "На пълно работно време <br>Атрактивна заплата."
+#: model_terms:ir.ui.view,arch_db:hr.view_hr_job_form
+msgid "<span>new Employees</span>"
+msgstr "<span>нови служители</span>"
 
 #. module: hr
 #: model:ir.model.constraint,message:hr.constraint_hr_employee_user_uniq
@@ -362,17 +256,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__hr_presence_state__absent
 msgid "Absent"
 msgstr "Отсъстващ"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Achieve monthly sales objectives"
-msgstr "Постигнете целите за месечни продажби"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_needaction
@@ -437,7 +320,7 @@ msgstr "Икона за Вид Дейност"
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_tree
 msgid "Activity by"
-msgstr ""
+msgstr "Активност от"
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.act_employee_from_department
@@ -449,7 +332,7 @@ msgstr "Добавяне на нов служител"
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.hr_plan_action
 msgid "Add a new plan"
-msgstr ""
+msgstr "Добавяне на нов план"
 
 #. module: hr
 #: model_terms:ir.actions.act_window,help:hr.hr_plan_activity_type_action
@@ -469,32 +352,10 @@ msgid "Additional Note"
 msgstr "Допълнителна забележка"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Additional languages"
-msgstr "Допълнителни езици"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__address_home_id
 #: model:ir.model.fields,field_description:hr.field_res_users__address_home_id
 msgid "Address"
 msgstr "Адрес"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Administrative Work"
-msgstr "Административна работа"
 
 #. module: hr
 #: model:res.groups,name:hr.group_hr_manager
@@ -512,7 +373,6 @@ msgid "Advanced presence of employees"
 msgstr "Разширено присъствие на служители"
 
 #. module: hr
-#: model:ir.model.fields,field_description:hr.field_crm_team__alias_contact
 #: model:ir.model.fields,field_description:hr.field_mail_alias__alias_contact
 msgid "Alias Contact Security"
 msgstr "Псевдноним контакт Сигурност"
@@ -534,6 +394,11 @@ msgstr "Позволява на служителите да актуализир
 #: model_terms:ir.ui.view,arch_db:hr.res_config_settings_view_form
 msgid "Allow employees to update their own data."
 msgstr "Позволява на служителите да актуализират данните си."
+
+#. module: hr
+#: model_terms:ir.ui.view,arch_db:hr.view_employee_form
+msgid "Application Settings"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_departure_wizard_view_form
@@ -564,26 +429,6 @@ msgstr "Архив личен адрес"
 #: model_terms:ir.ui.view,arch_db:hr.view_job_filter
 msgid "Archived"
 msgstr "Архивирано"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid ""
-"As an employee of our company, you will <b>collaborate with each department to create and deploy\n"
-"                                disruptive products.</b> Come work at a growing company that offers great benefits with opportunities to\n"
-"                                moving forward and learn alongside accomplished leaders. We're seeking an experienced and outstanding member of staff.\n"
-"                                <br><br>\n"
-"                                This position is both <b>creative and rigorous</b> by nature you need to think outside the box.\n"
-"                                We expect the candidate to be proactive and have a \"get it done\" spirit. To be successful,\n"
-"                                you will have solid solving problem skills."
-msgstr ""
-"Като служител на нашата компания вие ще си сътрудничите<b> с всеки отдел, за да създавате и внедрявате продукти</b>. Елате да работите в една развиваща се компания, която предлага големи предимства с възможности за напредък и учене заедно с утвърдени лидери. Търсим опитен и изключителен член на персонала.<br><br>Тази позиция е едновременно креативна и строга по природа, трябва да мислите нестандартно.\n"
-"                                Очакваме кандидатът да бъде проактивен и да има дух \"свърши го\". За да успеете, трябва да имате солидни умения за решаване на проблеми."
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_department__message_attachment_count
@@ -618,17 +463,6 @@ msgid "Automatically subscribe members of those departments to the channel."
 msgstr "Автоматично вписване на член от този отдел към канала."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Autonomy"
-msgstr "Автономност"
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_profile
 msgid "Available"
 msgstr "На разположение"
@@ -643,25 +477,25 @@ msgstr "Аватар"
 #: model:ir.model.fields,field_description:hr.field_hr_employee__avatar_1024
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__avatar_1024
 msgid "Avatar 1024"
-msgstr ""
+msgstr "Аватар 1024"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__avatar_128
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__avatar_128
 msgid "Avatar 128"
-msgstr ""
+msgstr "Аватар 128"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__avatar_256
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__avatar_256
 msgid "Avatar 256"
-msgstr ""
+msgstr "Аватар 256"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__avatar_512
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__avatar_512
 msgid "Avatar 512"
-msgstr ""
+msgstr "Аватар 512"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_profile
@@ -672,17 +506,6 @@ msgstr "Извън"
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__certificate__bachelor
 msgid "Bachelor"
 msgstr "Бакалавър"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Bachelor Degree or Higher"
-msgstr "Бакалавърска или по-висока степен"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__barcode
@@ -830,7 +653,7 @@ msgstr "Фирма"
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__company_country_id
 msgid "Company Country"
-msgstr ""
+msgstr "Държава на компанията"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.print_employee_badge
@@ -948,15 +771,14 @@ msgid "Create a new department"
 msgstr "Нов отдел"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Create content that will help our users on a daily basis"
-msgstr "Създайте съдържание, което ще помага ежедневно на нашите потребители"
+#: model_terms:ir.actions.act_window,help:hr.hr_contract_type_action
+msgid "Create a new employment type"
+msgstr ""
+
+#. module: hr
+#: model_terms:ir.actions.act_window,help:hr.hr_work_location_action
+msgid "Create a new work location"
+msgstr ""
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form
@@ -995,20 +817,14 @@ msgid "Created on"
 msgstr "Създадено на"
 
 #. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__currency_id
+msgid "Currency"
+msgstr "Валута"
+
+#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_job__no_of_employee
 msgid "Current Number of Employees"
 msgstr "Текущ брой служители"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Customer Relationship"
-msgstr "Връзка с клиенти"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__birthday
@@ -1104,17 +920,6 @@ msgid "Discard"
 msgstr "Отхвърлете"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Discover our products."
-msgstr "Открийте нашите продукти."
-
-#. module: hr
 #: model:ir.model,name:hr.model_mail_channel
 msgid "Discussion Channel"
 msgstr "Дискусионен канал"
@@ -1149,38 +954,6 @@ msgstr "Доктор"
 #: model:ir.model.fields,field_description:hr.field_hr_employee__driving_license
 msgid "Driving License"
 msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid ""
-"Each employee has a chance to see the impact of his work.\n"
-"                        You can make a real contribution to the success of the company.\n"
-"                        <br>\n"
-"                        Several activities are often organized all over the year, such as weekly\n"
-"                        sports sessions, team building events, monthly drink, and much more"
-msgstr ""
-"Всеки служител има шанс да види въздействието от работата си.\n"
-"Можете да допринесете реално за успеха на компанията.\n"
-"<br>\n"
-"През годината често се организират няколко дейности, например седмично:\n"
-"спортни сесии, тийм билдинг събития, месечно питие и много други."
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Eat &amp; Drink"
-msgstr "Яжте &amp; пийте"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_profile
@@ -1382,32 +1155,10 @@ msgstr ""
 "компания."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Expand your knowledge of various business industries"
-msgstr "Разшири знанията си за различни бизнес индустрии"
-
-#. module: hr
 #: model:ir.model.fields,help:hr.field_hr_job__expected_employees
 msgid ""
 "Expected number of employees for this job position after new recruitment."
 msgstr "Очакван брой служители за тази длъжност след ново назначение."
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Experience in writing online content"
-msgstr "Опит в писането на онлайн съдържание"
 
 #. module: hr
 #: model:hr.job,name:hr.job_developer
@@ -1471,17 +1222,6 @@ msgid "Freelancer"
 msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Fruit, coffee and <br>snacks provided."
-msgstr "Плодове, кафе и<br>осигурени закуски."
-
-#. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.view_employee_filter
 msgid "Future Activities"
 msgstr "Бъдещи дейности"
@@ -1498,31 +1238,9 @@ msgid "Generate"
 msgstr "Създайте"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Google Adwords experience"
-msgstr "Опит на Google Adwords"
-
-#. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__certificate__graduate
 msgid "Graduate"
 msgstr "Завършил образователна степен"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Great team of smart people, in a friendly and open culture"
-msgstr "Страхотен екип от умни хора, в приятелска и отворена култура"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
@@ -1553,18 +1271,7 @@ msgstr "ЧР настройки"
 #: model:ir.model.fields,field_description:hr.field_hr_employee__has_message
 #: model:ir.model.fields,field_description:hr.field_hr_job__has_message
 msgid "Has Message"
-msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Highly creative and autonomous"
-msgstr "Силно креативен и автономен"
+msgstr "Има съобщение"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_job__no_of_hired_employee
@@ -1659,11 +1366,8 @@ msgstr "Ако е отметнато, новите съобщения ще из�
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_department__message_has_error
-#: model:ir.model.fields,help:hr.field_hr_department__message_has_sms_error
 #: model:ir.model.fields,help:hr.field_hr_employee__message_has_error
-#: model:ir.model.fields,help:hr.field_hr_employee__message_has_sms_error
 #: model:ir.model.fields,help:hr.field_hr_job__message_has_error
-#: model:ir.model.fields,help:hr.field_hr_job__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Ако е отметнато, някои съобщения имат грешка при доставката."
 
@@ -1877,17 +1581,6 @@ msgid "Launch Plans"
 msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Lead the entire sales cycle"
-msgstr "Водене на целия цикъл на продажбите"
-
-#. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__marital__cohabitant
 msgid "Legal Cohabitant"
 msgstr "Правен сътрудник"
@@ -1968,17 +1661,6 @@ msgid "Master Department"
 msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Master demos of our software"
-msgstr "Магистърски демонстрации на нашия софтуер"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__member_of_department
 #: model:ir.model.fields,field_description:hr.field_hr_employee_base__member_of_department
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__member_of_department
@@ -2010,20 +1692,9 @@ msgid "Messages"
 msgstr "Съобщения"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Must Have"
-msgstr "Трябва да има"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr ""
+msgstr "Краен срок за моята дейност"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.hr_employee_public_view_search
@@ -2058,22 +1729,6 @@ msgid "Nationality (Country)"
 msgstr "Националност (държава)"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Negotiate and contract"
-msgstr "Преговор и договор"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_employee__activity_calendar_event_id
-msgid "Next Activity Calendar Event"
-msgstr ""
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Краен срок на следващо действие"
@@ -2089,49 +1744,11 @@ msgid "Next Activity Type"
 msgstr "Вид на следващо действие"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Nice to have"
-msgstr "Радвам се да "
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "No dumb managers, no stupid tools to use, no rigid working hours"
-msgstr ""
-"Без тъпи ръководители, без глупави инструменти за използване, без твърдо "
-"работно време"
-
-#. module: hr
 #. odoo-python
 #: code:addons/hr/models/hr_plan_activity_type.py:0
 #, python-format
 msgid "No specific user given on activity %s."
 msgstr "Няма конкретен потребител за активност %s."
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid ""
-"No waste of time in enterprise processes, real responsibilities and autonomy"
-msgstr ""
-"Без загуба на време в корпоративни процеси, реални отговорности и "
-"автономност"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_profile
@@ -2186,8 +1803,8 @@ msgstr ""
 #: model:ir.model.fields,help:hr.field_hr_department__message_needaction_counter
 #: model:ir.model.fields,help:hr.field_hr_employee__message_needaction_counter
 #: model:ir.model.fields,help:hr.field_hr_job__message_needaction_counter
-msgid "Number of messages which requires an action"
-msgstr "Брой съобщения, които изискват внимание"
+msgid "Number of messages requiring action"
+msgstr "Брой съобщения, изискващи действие"
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_department__message_has_error_counter
@@ -2245,7 +1862,7 @@ msgstr ""
 #: code:addons/hr/models/hr_employee_base.py:0
 #, python-format
 msgid "Operation not supported"
-msgstr ""
+msgstr "Операцията не се поддържа"
 
 #. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__certificate__other
@@ -2258,17 +1875,6 @@ msgstr "Друг"
 #: model:ir.model.fields,field_description:hr.field_hr_plan_activity_type__responsible_id
 msgid "Other Responsible"
 msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Our Product"
-msgstr "Нашия продукт"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__pin
@@ -2307,17 +1913,6 @@ msgid "Partner-related data of the user"
 msgstr "Свързани с контрагента данни на потребителя"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Passion for software products"
-msgstr "Страст към софтуерните продукти"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__passport_id
 #: model:ir.model.fields,field_description:hr.field_res_users__passport_id
 msgid "Passport No"
@@ -2329,42 +1924,9 @@ msgid "Payroll"
 msgstr "Ведомост"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Perfect written English"
-msgstr "Перфектен писмен английски"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Perks"
-msgstr "Бонус"
-
-#. module: hr
 #: model:hr.contract.type,name:hr.contract_type_permanent
 msgid "Permanent"
 msgstr ""
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Personal Evolution"
-msgstr "Личен напредък"
 
 #. module: hr
 #: model_terms:ir.ui.view,arch_db:hr.res_users_view_form_profile
@@ -2424,18 +1986,6 @@ msgid "Plans Count"
 msgstr ""
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Play any sport with colleagues, <br>the bill is covered."
-msgstr "Спортувайте с колеги, <br>сметката е платена."
-
-#. module: hr
-#: model:ir.model.fields,help:hr.field_crm_team__alias_contact
 #: model:ir.model.fields,help:hr.field_mail_alias__alias_contact
 msgid ""
 "Policy to post a message on the document using the mailgateway.\n"
@@ -2545,31 +2095,9 @@ msgid "Public Employee"
 msgstr "Публичен служител"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Qualify the customer needs"
-msgstr "Квалифицирайте нуждите на клиента"
-
-#. module: hr
 #: model_terms:ir.actions.act_window,help:hr.action_hr_job
 msgid "Ready to recruit more efficiently?"
 msgstr "Готови ли сте да набирате по-ефективно?"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Real responsibilities and challenges in a fast evolving company"
-msgstr "Реални отговорности и предизвикателства в бързо развиваща се компания"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_departure_reason__name
@@ -2667,17 +2195,6 @@ msgid "Resources"
 msgstr "Ресурси"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Responsibilities"
-msgstr "Задължения"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_plan_activity_type__responsible
 msgid "Responsible"
 msgstr "Отговорно лице"
@@ -2696,13 +2213,6 @@ msgstr "Пенсионер"
 #: model:ir.model.fields,field_description:hr.field_hr_employee__sinid
 msgid "SIN No"
 msgstr "Номер на социално осигуряване"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_department__message_has_sms_error
-#: model:ir.model.fields,field_description:hr.field_hr_employee__message_has_sms_error
-#: model:ir.model.fields,field_description:hr.field_hr_job__message_has_sms_error
-msgid "SMS Delivery error"
-msgstr "SMS грешка при доставка"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__ssnid
@@ -2791,17 +2301,6 @@ msgid "Specific responsible of activity if not linked to the employee."
 msgstr "Конкретна отговорност за дейност, ако не е свързана със служителя."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Sport Activity"
-msgstr "Спортна дейност"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__spouse_birthdate
 #: model:ir.model.fields,field_description:hr.field_res_users__spouse_birthdate
 msgid "Spouse Birthdate"
@@ -2853,17 +2352,6 @@ msgid "Street..."
 msgstr "Улица..."
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Strong analytical skills"
-msgstr "Силни аналитични умения"
-
-#. module: hr
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee__employee_type__student
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_base__employee_type__student
 #: model:ir.model.fields.selection,name:hr.selection__hr_employee_public__employee_type__student
@@ -2897,17 +2385,6 @@ msgstr "Маркери"
 #: model:ir.model.fields,field_description:hr.field_hr_job__no_of_recruitment
 msgid "Target"
 msgstr "Цел"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Technical Expertise"
-msgstr "Техническа експертиза"
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_res_users__create_employee_id
@@ -3023,6 +2500,13 @@ msgid "The plan %s has been started"
 msgstr ""
 
 #. module: hr
+#. odoo-python
+#: code:addons/hr/models/hr_plan_activity_type.py:0
+#, python-format
+msgid "The user of %s's coach is not set."
+msgstr ""
+
+#. module: hr
 #: model:res.groups,comment:hr.group_hr_user
 msgid "The user will be able to approve document created by employees."
 msgstr "Потребителят ще може да одобри документ, създаден от служители."
@@ -3116,17 +2600,6 @@ msgid "Trainee"
 msgstr "Стажант"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Trainings"
-msgstr "Обучения"
-
-#. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Вид на изключение на дейност в базата."
@@ -3155,13 +2628,6 @@ msgid "User"
 msgstr "Потребител"
 
 #. module: hr
-#. odoo-python
-#: code:addons/hr/models/hr_plan_activity_type.py:0
-#, python-format
-msgid "User of coach of employee %s is not set."
-msgstr "Потребител на обучител на служител %s не е зададен."
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__user_partner_id
 #: model:ir.model.fields,field_description:hr.field_hr_employee_public__user_partner_id
 msgid "User's partner"
@@ -3179,21 +2645,10 @@ msgid "Valid IP addresses"
 msgstr "Валидни IP адреси"
 
 #. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "Valid work permit for Belgium"
-msgstr "Валидно разрешение за работа за Белгия"
-
-#. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__visa_expire
 #: model:ir.model.fields,field_description:hr.field_res_users__visa_expire
-msgid "Visa Expire Date"
-msgstr "Дата на изтичане на виза"
+msgid "Visa Expiration Date"
+msgstr ""
 
 #. module: hr
 #: model:ir.model.fields,field_description:hr.field_hr_employee__visa_no
@@ -3208,42 +2663,6 @@ msgstr "Виза №"
 #, python-format
 msgid "Warning"
 msgstr "Внимание"
-
-#. module: hr
-#: model:ir.model.fields,field_description:hr.field_hr_department__website_message_ids
-#: model:ir.model.fields,field_description:hr.field_hr_employee__website_message_ids
-#: model:ir.model.fields,field_description:hr.field_hr_job__website_message_ids
-msgid "Website Messages"
-msgstr "Съобщения в уебсайт"
-
-#. module: hr
-#: model:ir.model.fields,help:hr.field_hr_department__website_message_ids
-#: model:ir.model.fields,help:hr.field_hr_employee__website_message_ids
-#: model:ir.model.fields,help:hr.field_hr_job__website_message_ids
-msgid "Website communication history"
-msgstr "История на комуникацията на уебсайт"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "What We Offer"
-msgstr "Какво предлагаме"
-
-#. module: hr
-#: model_terms:hr.job,website_description:hr.job_ceo
-#: model_terms:hr.job,website_description:hr.job_consultant
-#: model_terms:hr.job,website_description:hr.job_cto
-#: model_terms:hr.job,website_description:hr.job_developer
-#: model_terms:hr.job,website_description:hr.job_hrm
-#: model_terms:hr.job,website_description:hr.job_marketing
-#: model_terms:hr.job,website_description:hr.job_trainee
-msgid "What's great in the job?"
-msgstr "Какво е чудесно в работата?"
 
 #. module: hr
 #: model:ir.model.fields,help:hr.field_hr_employee__member_of_department
@@ -3462,3 +2881,8 @@ msgstr "план"
 #, python-format
 msgid "restricted to employees"
 msgstr "ограничено за служители"
+
+#. module: hr
+#: model:ir.model.fields,field_description:hr.field_hr_employee__work_permit_name
+msgid "work_permit_name"
+msgstr ""

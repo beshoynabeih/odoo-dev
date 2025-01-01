@@ -5,7 +5,7 @@ from freezegun import freeze_time
 
 from odoo.addons.stock_account.tests.test_anglo_saxon_valuation_reconciliation_common import ValuationReconciliationTestCommon
 from odoo.tests.common import Form, tagged
-from odoo import fields
+from odoo import Command, fields
 
 
 
@@ -391,3 +391,154 @@ class TestValuationReconciliation(ValuationReconciliationTestCommon):
             {'debit': 0.0,     'credit': 50.0,      'amount_currency': -100.0,   'account_id': cash_basis_transfer_account.id},
             {'debit': 50.0,      'credit': 0.0,     'amount_currency': 100.0,  'account_id': tax_account_1.id},
         ])
+
+    def test_reconciliation_differed_billing(self):
+        """
+        Test whether products received billed at different time will be correctly reconciled
+        valuation: automated
+        - create a rfq
+        - receive products
+        - create bill - set quantity of product A = 0 - save
+        - create bill - confirm
+        -> the reconciliation should not take into account the lines of the first bill
+        """
+        date_po_and_delivery = '2022-03-02'
+        self.product_a.write({
+            'categ_id': self.stock_account_product_categ,
+            'detailed_type': 'product',
+        })
+        self.product_b.write({
+            'categ_id': self.stock_account_product_categ,
+            'detailed_type': 'product',
+        })
+        purchase_order = self.env['purchase.order'].create({
+                'currency_id': self.currency_data['currency'].id,
+                'order_line': [
+                    Command.create({
+                        'name': self.product_a.name,
+                        'product_id': self.product_a.id,
+                        'product_qty': 1,
+                    }),
+                    Command.create({
+                        'name': self.product_b.name,
+                        'product_id': self.product_b.id,
+                        'product_qty': 1,
+                    }),
+                ],
+                'partner_id': self.partner_a.id,
+            })
+        purchase_order.button_confirm()
+        self._process_pickings(purchase_order.picking_ids, date=date_po_and_delivery)
+
+        bill_1 = self._create_invoice_for_po(purchase_order, date_po_and_delivery)
+        move_form = Form(bill_1)
+        with move_form.invoice_line_ids.edit(0) as line_form:
+            line_form.quantity = 0
+        move_form.save()
+
+        bill_2 = self._create_invoice_for_po(purchase_order, date=date_po_and_delivery)
+        bill_2.action_post()
+        aml = bill_2.line_ids.filtered(lambda line: line.display_type == "product")
+        pol = purchase_order.order_line
+        self.assertRecordValues(pol, [{'qty_invoiced': line.qty_received} for line in pol])
+        self.assertRecordValues(aml, [{'reconciled': True} for line in aml])
+
+    def test_create_fifo_vacuum_anglo_saxon_expense_entry(self):
+
+        # create purchase
+        self.product_a.write({
+            'standard_price': 27.0,
+            'categ_id': self.stock_account_product_categ,
+            'detailed_type': 'product',
+        })
+
+        self.stock_account_product_categ['property_cost_method'] = 'average'
+
+        #create purchase
+        date_po_and_delivery = '2018-01-01'
+        purchase_order = self._create_purchase(self.product_a, date_po_and_delivery, 1, price_unit=27)
+
+        # proccess picking
+        self._process_pickings(purchase_order.picking_ids, date=date_po_and_delivery)
+
+        # create return
+        picking = purchase_order.picking_ids[0]
+        stock_return_picking_form = Form(self.env['stock.return.picking']
+            .with_context(active_ids=picking.ids, active_id=picking.ids[0],
+            active_model='stock.picking'))
+        stock_return_picking = stock_return_picking_form.save()
+        stock_return_picking.product_return_moves.write({'quantity': 1000.0})
+        stock_return_picking_action = stock_return_picking.create_returns()
+        return_pick = self.env['stock.picking'].browse(stock_return_picking_action['res_id'])
+        return_pick.move_line_ids.write({'qty_done': 1000})
+        return_pick.button_validate()
+
+        # create vendor bill
+        move_form = Form(self.env['account.move'].with_context(default_move_type='in_refund'))
+        move_form._view['modifiers']['purchase_id']['invisible'] = False
+        move_form.partner_id = purchase_order.partner_id
+        move_form.invoice_date = date_po_and_delivery
+        move_form.purchase_id = purchase_order
+        with move_form.invoice_line_ids.edit(0) as line_form:
+            line_form.quantity = 999.0
+        invoice = move_form.save()
+        invoice.action_post()
+
+        # register payment
+        self.env['account.payment.register']\
+            .with_context(active_ids=invoice.ids, active_model='account.move')\
+            .create({})\
+            ._create_payments()
+
+        # create another purchase
+        purchase_order2 = self.env['purchase.order'].create({
+                'partner_id': self.partner_a.id,
+                'currency_id': self.env.company.currency_id.id,
+                'order_line': [
+                    (0, 0, {
+                        'name': self.product_a.name,
+                        'product_id': self.product_a.id,
+                        'product_qty': 1,
+                        'product_uom': self.product_a.uom_po_id.id,
+                        'price_unit': 29,
+                        'date_planned': date_po_and_delivery,
+                    })],
+                'date_order': date_po_and_delivery,
+            })
+        # confirm PO
+        purchase_order2.button_confirm()
+        # process pickings
+        self._process_pickings(purchase_order2.picking_ids, date_po_and_delivery)
+
+        picking2 = purchase_order2.picking_ids[0]
+        self.assertEqual(picking2.state, 'done')
+
+    def test_manual_cost_adjustment_journal_items_quantity(self):
+        """ The quantity field of `account.move.line` should be permitted to be zero, e.g., in the
+        case of modifying an automatically valuated product's cost.
+        """
+        self.stock_account_product_categ.property_cost_method = 'average'
+        self.product_a.write({
+            'categ_id': self.stock_account_product_categ.id,
+            'detailed_type': 'product',
+        })
+
+        purchase_order = self.env['purchase.order'].create({
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({
+                'product_id': self.product_a.id,
+                'product_uom_qty': 5,
+                'price_unit': 4,
+            })],
+        })
+        purchase_order.button_confirm()
+        purchase_order.picking_ids.move_line_ids.qty_done = 5
+        purchase_order.picking_ids.button_validate()
+        with Form(self.product_a) as product_form:
+            product_form.standard_price = 3
+
+        cost_change_journal_items = self.env['account.move.line'].search([
+            ('product_id', '=', self.product_a.id),
+            '|', ('debit', '=', 5), ('credit', '=', 5),
+        ])
+        self.assertEqual(cost_change_journal_items.mapped('quantity'), [0, 0])

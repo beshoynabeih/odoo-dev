@@ -17,7 +17,12 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
         """
         A bill that has an AAL on one of its line should be taken into account
         for the profitability of the project.
+        The contribution of the line should only be dependent
+        on the project's analytic account % that was set on the line
         """
+        # a custom analytic contribution (number between 1 -> 100 included)
+        analytic_distribution = 42
+        analytic_contribution = analytic_distribution / 100.
         # create a bill_1 with the AAL
         bill_1 = self.env['account.move'].create({
             "name": "Bill_1 name",
@@ -26,7 +31,7 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
             "partner_id": self.partner.id,
             "invoice_date": datetime.today(),
             "invoice_line_ids": [Command.create({
-                "analytic_distribution": {self.analytic_account.id: 100},
+                "analytic_distribution": {self.analytic_account.id: analytic_distribution},
                 "product_id": self.product_a.id,
                 "quantity": 1,
                 "product_uom_id": self.product_a.uom_id.id,
@@ -41,10 +46,10 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                 'data': [{
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
-                    'to_bill': -self.product_a.standard_price,
+                    'to_bill': -self.product_a.standard_price * analytic_contribution,
                     'billed': 0.0,
                 }],
-                'total': {'to_bill': -self.product_a.standard_price, 'billed': 0.0},
+                'total': {'to_bill': -self.product_a.standard_price * analytic_contribution, 'billed': 0.0},
             },
         )
         # post bill_1
@@ -57,9 +62,9 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
                     'to_bill': 0.0,
-                    'billed': -self.product_a.standard_price,
+                    'billed': -self.product_a.standard_price * analytic_contribution,
                 }],
-                'total': {'to_bill': 0.0, 'billed': -self.product_a.standard_price},
+                'total': {'to_bill': 0.0, 'billed': -self.product_a.standard_price * analytic_contribution},
             },
         )
         # create another bill, with 2 lines, 2 diff products, the second line has 2 as quantity
@@ -70,14 +75,14 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
             "partner_id": self.partner.id,
             "invoice_date": datetime.today(),
             "invoice_line_ids": [Command.create({
-                "analytic_distribution": {self.analytic_account.id: 100},
+                "analytic_distribution": {self.analytic_account.id: analytic_distribution},
                 "product_id": self.product_a.id,
                 "quantity": 1,
                 "product_uom_id": self.product_a.uom_id.id,
                 "price_unit": self.product_a.standard_price,
                 "currency_id": self.env.company.currency_id.id,
             }), Command.create({
-                "analytic_distribution": {self.analytic_account.id: 100},
+                "analytic_distribution": {self.analytic_account.id: analytic_distribution},
                 "product_id": self.product_b.id,
                 "quantity": 2,
                 "product_uom_id": self.product_b.uom_id.id,
@@ -92,12 +97,12 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                 'data': [{
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
-                    'to_bill': -(self.product_a.standard_price + 2 * self.product_b.standard_price),
-                    'billed': -self.product_a.standard_price,
+                    'to_bill': -(self.product_a.standard_price + 2 * self.product_b.standard_price) * analytic_contribution,
+                    'billed': -self.product_a.standard_price * analytic_contribution,
                 }],
                 'total': {
-                    'to_bill': -(self.product_a.standard_price + 2 * self.product_b.standard_price),
-                    'billed': -self.product_a.standard_price,
+                    'to_bill': -(self.product_a.standard_price + 2 * self.product_b.standard_price) * analytic_contribution,
+                    'billed': -self.product_a.standard_price * analytic_contribution,
                 },
             },
         )
@@ -111,11 +116,11 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
                     'to_bill': 0.0,
-                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price),
+                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price) * analytic_contribution,
                 }],
                 'total': {
                     'to_bill': 0.0,
-                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price),
+                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price) * analytic_contribution,
                 },
             },
         )
@@ -124,7 +129,7 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
             "name": "A purchase order",
             "partner_id": self.partner_a.id,
             "order_line": [Command.create({
-                "analytic_distribution": {self.analytic_account.id: 100},
+                "analytic_distribution": {self.analytic_account.id: analytic_distribution},
                 "product_id": self.product_order.id,
                 "product_qty": 1,
                 "price_unit": self.product_order.standard_price,
@@ -132,6 +137,7 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
             })],
         })
         purchase_order.button_confirm()
+        purchase_order.order_line.flush_recordset()
         # we should have a new section "purchase_order", the total should be updated,
         # but the "other_purchase_costs" shouldn't change, as we don't takes into
         # account bills from purchase orders, as those are already taken into calculations
@@ -142,17 +148,17 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                 'data': [{
                     'id': 'purchase_order',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['purchase_order'],
-                    'to_bill': -self.product_order.standard_price,
+                    'to_bill': -self.product_order.standard_price * analytic_contribution,
                     'billed': 0.0,
                 }, {
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
                     'to_bill': 0.0,
-                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price),
+                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price) * analytic_contribution,
                 }],
                 'total': {
-                    'to_bill': -self.product_order.standard_price,
-                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price),
+                    'to_bill': -self.product_order.standard_price * analytic_contribution,
+                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price) * analytic_contribution,
                 },
             },
         )
@@ -169,18 +175,18 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                     'id': 'purchase_order',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['purchase_order'],
                     'to_bill': 0.0,
-                    'billed': -self.product_order.standard_price,
+                    'billed': -self.product_order.standard_price * analytic_contribution,
                 }, {
                     'id': 'other_purchase_costs',
                     'sequence': self.project._get_profitability_sequence_per_invoice_type()['other_purchase_costs'],
                     'to_bill': 0.0,
-                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price),
+                    'billed': -2 * (self.product_a.standard_price + self.product_b.standard_price) * analytic_contribution,
                 }],
                 'total': {
                     'to_bill': 0.0,
                     'billed': -(2 * self.product_a.standard_price +
                                 2 * self.product_b.standard_price +
-                                self.product_order.standard_price),
+                                self.product_order.standard_price) * analytic_contribution,
                 },
             },
         )
@@ -223,6 +229,7 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
             })],
         })
         purchase_order.button_confirm()
+        purchase_order.order_line.flush_recordset()
         self.assertDictEqual(
             self.project._get_profitability_items(False)['costs'],
             {
@@ -254,6 +261,103 @@ class TestProjectPurchaseProfitability(TestProjectProfitabilityCommon, TestPurch
                 'total': {
                     'to_bill': 0.0,
                     'billed': -(self.product_order.standard_price * (analytic_ratios["project_ratio"] / 100)),
+                },
+            },
+        )
+
+    def test_analytic_distribution_with_included_tax(self):
+        """When calculating the profitability of a project, included taxes should not be calculated"""
+        included_tax = self.env['account.tax'].create({
+            'name': 'included tax',
+            'amount': '15.0',
+            'amount_type': 'percent',
+            'type_tax_use': 'purchase',
+            'price_include': True
+        })
+
+        # create a purchase.order with the project account in analytic_distribution
+        purchase_order = self.env['purchase.order'].create({
+            'name': "A purchase order",
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({
+                'analytic_distribution': {self.analytic_account.id: 100},
+                'product_id': self.product_order.id,
+                'product_qty': 2,  # plural value to check if the price is multiplied more than once
+                'taxes_id': [included_tax.id],  # set the included tax
+                'price_unit': self.product_order.standard_price,
+                'currency_id': self.env.company.currency_id.id,
+            })],
+        })
+        purchase_order.button_confirm()
+        purchase_order.order_line.flush_recordset()
+        # the profitability should not take taxes into account
+        self.assertDictEqual(
+            self.project._get_profitability_items(False)['costs'],
+            {
+                'data': [{
+                    'id': 'purchase_order',
+                    'sequence': self.project._get_profitability_sequence_per_invoice_type()['purchase_order'],
+                    'to_bill': -(purchase_order.amount_untaxed),
+                    'billed': 0.0,
+                }],
+                'total': {
+                    'to_bill': -(purchase_order.amount_untaxed),
+                    'billed': 0.0,
+                },
+            },
+        )
+
+        purchase_order.action_create_invoice()
+        purchase_bill = purchase_order.invoice_ids  # get the bill from the purchase
+        purchase_bill.invoice_date = datetime.today()
+        purchase_bill.action_post()
+        # same here, taxes should not be calculated in the profitability
+        self.assertDictEqual(
+            self.project._get_profitability_items(False)['costs'],
+            {
+                'data': [{
+                    'id': 'purchase_order',
+                    'sequence': self.project._get_profitability_sequence_per_invoice_type()['purchase_order'],
+                    'to_bill': 0.0,
+                    'billed': -(purchase_bill.amount_untaxed),
+                }],
+                'total': {
+                    'to_bill': 0.0,
+                    'billed': -(purchase_bill.amount_untaxed),
+                },
+            },
+        )
+
+    def test_analytic_distribution_with_mismatched_uom(self):
+        """When changing the unit of measure, the profitability should still match the price_subtotal of the order line"""
+        # create a purchase.order with the project account in analytic_distribution
+        purchase_order = self.env['purchase.order'].create({
+            'name': "A purchase order",
+            'partner_id': self.partner_a.id,
+            'order_line': [Command.create({
+                'analytic_distribution': {self.analytic_account.id: 100},
+                'product_id': self.product_order.id,
+                'product_qty': 1,
+                'price_unit': self.product_order.standard_price,
+                'currency_id': self.env.company.currency_id.id,
+            })],
+        })
+        purchase_order.button_confirm()
+        # changing the uom to a higher number
+        purchase_order.order_line.product_uom = self.env.ref("uom.product_uom_dozen")
+        purchase_order.order_line.flush_recordset()
+        self.assertDictEqual(
+            self.project._get_profitability_items(False)['costs'],
+            {
+                'data': [{
+                    'id': 'purchase_order',
+                    'sequence': self.project._get_profitability_sequence_per_invoice_type()['purchase_order'],
+                    'to_bill': -(purchase_order.amount_untaxed),
+                    'billed': 0.0,
+                }],
+                'total': {
+                    'to_bill': -(purchase_order.amount_untaxed),
+                    'billed': 0.0,
                 },
             },
         )

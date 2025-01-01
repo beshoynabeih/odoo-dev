@@ -2,13 +2,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-import os
 from collections import defaultdict, OrderedDict
 
 from odoo import api, fields, models
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.exceptions import MissingError
 from odoo.http import request
+from odoo.tools import split_every
 
 _logger = logging.getLogger(__name__)
 
@@ -189,6 +189,7 @@ class IrModuleModule(models.Model):
         self.ensure_one()
         translated_fields = self._theme_translated_fields.get(old_rec._name, [])
         cur_lang = self.env.lang or 'en_US'
+        valid_langs = set(code for code, _ in self.env['res.lang'].get_installed()) | {'en_US'}
         old_rec.flush_recordset()
         for (src_field, dst_field) in translated_fields:
             __, src_fname = src_field.split(',')
@@ -196,7 +197,11 @@ class IrModuleModule(models.Model):
             if dst_mname != new_rec._name:
                 continue
             old_field = old_rec._fields[src_fname]
-            old_translations = old_field._get_stored_translations(old_rec)
+            old_translations = {
+                lang: value
+                for lang, value in old_field._get_stored_translations(old_rec).items()
+                if lang in valid_langs
+            }
             if not old_translations:
                 continue
             if not callable(old_field.translate):
@@ -437,17 +442,19 @@ class IrModuleModule(models.Model):
         for theme in themes:
             terp = self.get_module_info(theme.name)
             images = terp.get('images', [])
-            for image in images:
-                image_path = '/' + os.path.join(theme.name, image)
-                if image_path not in existing_urls:
-                    image_name = os.path.basename(image_path)
-                    IrAttachment.create({
-                        'type': 'url',
-                        'name': image_name,
-                        'url': image_path,
-                        'res_model': self._name,
-                        'res_id': theme.id,
-                    })
+            image_paths = ['/%s/%s' % (theme.name, image) for image in images]
+            if all(image_path in existing_urls for image_path in image_paths):
+                continue
+            # Images creation order must be the order specified in the manifest
+            for image_path in image_paths:
+                image_name = image_path.split('/')[-1]
+                IrAttachment.create({
+                    'type': 'url',
+                    'name': image_name,
+                    'url': image_path,
+                    'res_model': self._name,
+                    'res_id': theme.id,
+                })
 
     def get_themes_domain(self):
         """Returns the 'ir.module.module' search domain matching all available themes."""
@@ -527,7 +534,8 @@ class IrModuleModule(models.Model):
             return res
 
         o_menu_name = [f"'{lang}', o_menu.name->>'{lang}'" for lang in langs if lang != 'en_US']
-        o_menu_name = 'jsonb_build_object(' + ', '.join(o_menu_name) + ')'
+        o_menu_name = ['jsonb_build_object(' + ', '.join(items) + ')' for items in split_every(50, o_menu_name)]
+        o_menu_name = ' || '.join(o_menu_name)
         self.env.cr.execute(f"""
                         UPDATE website_menu menu
                            SET name = {'menu.name || ' + o_menu_name if overwrite else o_menu_name + ' || menu.name'}
